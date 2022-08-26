@@ -1,0 +1,349 @@
+<form script="mitre_matrix.js" stylesheet="mitre_matrix.css" theme="light">
+  <label>ATT&amp;CK Matrix Risk (Business View)</label>
+  <description>This dashboard portraoys risk in your environment through the lens of RBA and the MITRE ATT&amp;CK framework</description>
+  <search id="mitre_base_1">
+    <query>
+      | tstats values(All_Risk.annotations.mitre_attack.mitre_tactic) as mitre_tactic, values(All_Risk.annotations.mitre_attack.mitre_technique) as mitre_technique values(All_Risk.savedsearch_description) as search_name values(All_Risk.risk_object_type) as risk_object_type values(All_Risk.impact) as impact from datamodel=Risk by _time, All_Risk.risk_object
+| `drop_dm_object_name("All_Risk")`
+    </query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>0</earliest>
+        <latest>1564876800</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Reduction in notables by using the Attribution based approach</title>
+        <search>
+          <query>index=notable|eval notable=if(eventtype="risk_notables","Risk Notable","Notable")|stats count by notable
+|transpose 0 header_field=notable
+|eval p=round(100-('Risk Notable'/Notable)*100,1)
+|table p</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0xdc4e41","0xf1813f","0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[30,50,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="unit">%</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <title>Traditional Notables versus Risk Notables</title>
+        <search>
+          <query>index=notable|eval notable=if(eventtype="risk_notables","Risk Notable","Notable")
+|timechart span=1h count by notable</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Attributions - Recognized Tactics/Techniques</title>
+      <single>
+        <search>
+          <query>| tstats count from datamodel=Risk</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[10000]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="unit">Attributions</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Actionable Risk Notables</title>
+      <single>
+        <search>
+          <query>`notable`
+| search search_name="Threat - ATT&amp;CK*"
+| stats count</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[500,1000]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="unit">Risk Notables</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Techniques Covered in Our Environment</title>
+        <search>
+          <query>|inputlookup mitre_attack_lookup
+| stats dc(mitre_technique_id) as total_techniques by mitre_tactic
+|append [| rest splunk_server=local count=0 /services/saved/searches|search action.correlationsearch.label="RR - *"|table action.correlationsearch.annotations|spath input=action.correlationsearch.annotations|rename mitre_attack{} as  mitre_technique_id|mvexpand mitre_technique_id|lookup mitre_attack_lookup mitre_technique_id OUTPUT mitre_tactic|stats dc(mitre_technique_id) as num_covered_techniques by mitre_tactic]|stats values(total_techniques) as total_techniques, values(num_covered_techniques) as num_covered_techniques by mitre_tactic
+| fillnull value="0" num_covered_techniques
+| eval combo = num_covered_techniques." of ".total_techniques
+|eval perc=round((num_covered_techniques/total_techniques)*100,1)
+|eval perc="(".perc."%)"
+|table mitre_tactic, combo,perc
+| transpose 0 header_field=mitre_tactic
+|fields - column</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Techniques Detected in Our Environment</title>
+        <search>
+          <query>|inputlookup mitre_attack_lookup
+| stats dc(mitre_technique_id) as total_techniques by mitre_tactic
+|append [|tstats `summariesonly` dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as num_detected_techniques from datamodel=Risk by All_Risk.annotations.mitre_attack.mitre_tactic|rename All_Risk.annotations.mitre_attack.mitre_tactic as mitre_tactic|fillnull value="0" num_detected_techniques]
+|stats values(total_techniques) as total_techniques, values(num_detected_techniques) as num_detected_techniques by mitre_tactic
+| fillnull value="0" num_detected_techniques
+| eval combo = num_detected_techniques." of ".total_techniques
+|table mitre_tactic, combo
+| transpose 0 header_field=mitre_tactic
+|fields - column</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Detected Tactics</title>
+      <chart>
+        <search base="mitre_base_1">
+          <query>stats count by mitre_tactic</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Detected Techniques</title>
+      <chart>
+        <search base="mitre_base_1">
+          <query>stats count by mitre_technique</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Detected Tactics over Time</title>
+      <chart>
+        <search base="mitre_base_1">
+          <query>timechart count by mitre_tactic usenull=f</query>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Detected Techniques over Time</title>
+      <chart>
+        <search base="mitre_base_1">
+          <query>timechart count by mitre_technique usenull=f</query>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Attribution Scoring by Risk Object Priority</title>
+      <table>
+        <search>
+          <query>|from datamodel:"Risk"."All_Risk"|search risk_object_priority=* risk_object_type=*|bin span=1h _time|stats sparkline sum(calculated_risk_score) as "Attribution Scoring Total" by risk_object_priority|eventstats sum("Attribution Scoring Total") as "total"|eval Percentage=round(('Attribution Scoring Total'/total)*100,1)|fields - "Attribution Scoring Total" total|sort  - Percentage</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Attribution Scoring by User Category</title>
+      <table>
+        <search>
+          <query>|from datamodel:"Risk"."All_Risk"|search risk_object_category=* risk_object_type=user|bin span=1h _time|stats sparkline sum(calculated_risk_score) as "Attribution Scoring Total" by risk_object_category|eventstats sum("Attribution Scoring Total") as "total"|eval Percentage=round(('Attribution Scoring Total'/total)*100,1)|fields - "Attribution Scoring Total" total|sort  - Percentage</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Attribution Scoring by System Category</title>
+      <table>
+        <search>
+          <query>|from datamodel:"Risk"."All_Risk"|search risk_object_category=* risk_object_type=system|bin span=1h _time|stats sparkline sum(calculated_risk_score) as "Attribution Scoring Total" by risk_object_category|eventstats sum("Attribution Scoring Total") as "total"|eval Percentage=round(('Attribution Scoring Total'/total)*100,1)|fields - "Attribution Scoring Total" total|sort  - Percentage</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Tactics and Techniques by Identity</title>
+      <table>
+        <search base="mitre_base_1">
+          <query>| search risk_object_type=user
+| stats values(mitre_tactic) as Tactic values(mitre_technique) as Techniques dc(mitre_tactic) as count by risk_object
+| sort - count
+| fields - count
+| rename risk_object as "Identity"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Tactics and Techniques by Asset</title>
+      <table>
+        <search base="mitre_base_1">
+          <query>| search risk_object_type=system
+| stats values(mitre_tactic) as Tactic values(mitre_technique) as Techniques dc(mitre_tactic) as count by risk_object
+| sort - count
+| fields - count
+| rename risk_object as "Asset"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
