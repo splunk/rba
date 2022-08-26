@@ -77,7 +77,6 @@
             <unset token="risk_drilldown"></unset>
           </condition>
         </drilldown>
-
       </table>
     </panel>
   </row>
