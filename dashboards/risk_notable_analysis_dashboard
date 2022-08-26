@@ -1,0 +1,84 @@
+<form>
+  <label>Risk Notable Analysis Dashboard</label>
+  <fieldset submitButton="true">
+    <input type="time" token="time_picker">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Risk Rules</title>
+        <search>
+          <query>| tstats summariesonly=false sum(All_Risk.calculated_risk_score) as risk_score,dc(All_Risk.risk_object) as risk_objects,count from datamodel=Risk.All_Risk where *  All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*") by source | sort 1000 - count,risk_score</query>
+          <earliest>$time_picker.earliest$</earliest>
+          <latest>$time_picker.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <set token="risk_drilldown">$click.value$</set>
+        </drilldown>
+        <format type="color" field="risk_score">
+          <colorPalette type="minMidMax" maxColor="#e34a33" midColor="#fdbb84" minColor="#fee8c8"></colorPalette>
+          <scale type="minMidMax" maxType="number" maxValue="1000" midType="number" midValue="500" minType="number" minValue="0"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Risk Rule Frequency</title>
+        <search>
+          <query>`notable` | search eventtype=risk_notables | eventstats count as sum | stats count(eval(status_label="New")) as rule_count values(sum) as sum by orig_source | eval notable_percent = rule_count / sum | sort - notable_percent</query>
+          <earliest>$time_picker.earliest$</earliest>
+          <latest>$time_picker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel depends="$doesnt_exist$">
+      <table>
+        <search>
+          <query>
+  | rest splunk_server=local count=0 /services/saved/searches 
+  | search title="$risk_drilldown$" | rename dispatch.earliest_time as early_time qualifiedSearch as search_spl
+  | table search_spl early_time
+          </query>
+          <done>
+            <set token="search_spl">$result.search_spl$</set>
+            <set token="early_time">$result.early_time$</set>
+          </done>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$risk_drilldown$">
+      <table>
+        <title>$risk_drilldown$</title>
+        <search>
+          <query>| tstats summariesonly=true count dc(All_Risk.risk_object) as dc_objects dc(All_Risk.src) as dc_src dc(All_Risk.dest) as dc_dest dc(All_Risk.user) as dc_users dc(All_Risk.user_bunit) as dc_bunit sum(All_Risk.calculated_risk_score) as risk_sum values(All_Risk.calculated_risk_score) as risk_scores from datamodel=Risk.All_Risk where source="$risk_drilldown$" by All_Risk.threat_object,All_Risk.threat_object_type | `drop_dm_object_name("All_Risk")` | sort 1000 - risk_sum</query>
+          <earliest>$time_picker.earliest$</earliest>
+          <latest>$time_picker.latest$</latest>
+        </search>
+        <format type="color" field="threat_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <link target="_blank">search?q=$search_spl$&amp;earliest=$early_time$&amp;latest=$time_picker.latest$</link>
+          </condition>
+          <condition>
+            <unset token="risk_drilldown"></unset>
+          </condition>
+        </drilldown>
+
+      </table>
+    </panel>
+  </row>
+</form>
