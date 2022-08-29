@@ -1,4 +1,6 @@
-<!-- I've left some no_zero / show_zero tokens in case you'd like to add a toggle for risk events with a score of 0. You would just need to duplicate every panel with a depends so when you set the context toggle, the corresponding panels disappear/reappear. I've left the input toggle commented out so you can add it if you'd like. -->
+<!-- I've left some no_zero / show_zero tokens in case you'd like to add a toggle for risk events with a score of 0.
+You would just need to duplicate every panel with a depends so when you set the context toggle, the corresponding panels disappear/reappear.
+I've left the input toggle commented out so you can add it in if you'd like. -->
 <form version="1.1">
   <label>Risk Investigation Dashboard</label>
   <init>
