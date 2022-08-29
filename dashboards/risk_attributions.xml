@@ -1,24 +1,249 @@
 <!-- Initial dashboard created by the wonderful Jim Apger -->
 <form>
-  <label>Audit:  Attribution Analytics (Tuning View)</label>
-  <description>Helpful for tuning new detections</description>
+  <label>Risk Attributions (Investigative View)</label>
+  <description>Risk Attributions</description>
   <fieldset submitButton="false" autoRun="true">
-    <input type="time" token="time_picker" searchWhenChanged="true">
-      <label>Time</label>
+    <input type="text" token="field_risk_object" searchWhenChanged="true">
+      <label>Risk Object</label>
+    </input>
+    <input type="time" token="timepicker" searchWhenChanged="true">
+      <label>Time Range</label>
       <default>
         <earliest>0</earliest>
         <latest></latest>
       </default>
     </input>
+    <input type="dropdown" searchWhenChanged="true" token="field_risk_object_type">
+      <label>Risk Object Type</label>
+      <choice value="user">User</choice>
+      <choice value="system">System</choice>
+      <choice value="service">Service</choice>
+    </input>
+    <input type="link" token="show_web" searchWhenChanged="true">
+      <label>Linked Object Viz</label>
+      <choice value="true">Show Attack Web</choice>
+      <choice value="false">Hide Attack Web</choice>
+      <default>false</default>
+      <initialValue>false</initialValue>
+      <change>
+        <condition value="true">
+          <set token="show_web">true</set>
+        </condition>
+        <condition value="false">
+          <unset token="show_web"></unset>
+          <unset token="chain_value"></unset>
+        </condition>
+      </change>
+    </input>
   </fieldset>
   <row>
+    <panel depends="$show_web$">
+      <title>Attack Web</title>
+      <input type="link" token="depth_tok" searchWhenChanged="true">
+        <label>Depth</label>
+        <choice value="1">1</choice>
+        <choice value="2">2</choice>
+        <choice value="3">3</choice>
+        <change>
+          <condition value="1">
+            <set token="depth_tok">| tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$"
+by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_Risk.threat_object_type
+| rename All_Risk.* as *
+| search threat_object=* 
+| table risk_object risk_object_type threat_object threat_object_type
+| eval threat_object = replace (threat_object , "\"" , "")
+| eval orig_threat_object=threat_object
+| eval threat_object=if(len(threat_object) &gt; 25,substr(threat_object,1,25)."...",threat_object)
+|dedup risk_object, risk_object_type, threat_object
+| eval from=risk_object, to=threat_object, type=risk_object_type
+| appendpipe [| eval from=threat_object, to="", type=threat_object_type]
+| lookup attack_web_viz type as type
+| eval linktext=threat_object_type
+| rename viz as type
+| eval value=orig_threat_object
+|search NOT risk_object="system"</set>
+          </condition>
+          <condition value="2">
+            <set token="depth_tok">| tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" OR All_Risk.threat_object IN 
+
+[|tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" by All_Risk.threat_object
+| fields All_Risk.threat_object
+| mvcombine All_Risk.threat_object delim="\",\"" 
+| nomv All_Risk.threat_object 
+| rename All_Risk.threat_object as search | eval search="(\"".search."\")"]
+by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_Risk.threat_object_type
+| rename All_Risk.* as *
+| search threat_object=* 
+| table risk_object risk_object_type threat_object threat_object_type
+| eval threat_object = replace (threat_object , "\"" , "")
+| eval orig_threat_object=threat_object
+| eval threat_object=if(len(threat_object) &gt; 25,substr(threat_object,1,25)."...",threat_object)
+|dedup risk_object, risk_object_type, threat_object
+| eval from=risk_object, to=threat_object, type=risk_object_type
+| appendpipe [| eval from=threat_object, to="", type=threat_object_type]
+| lookup attack_web_viz type as type
+| eval linktext=threat_object_type
+| rename viz as type
+| eval value=orig_threat_object
+|search NOT risk_object="system"</set>
+          </condition>
+          <condition value="3">
+            <set token="depth_tok">| tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" OR All_Risk.risk_object IN 
+[| tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.threat_object IN
+[|tstats `summariesonly` count from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" by All_Risk.threat_object
+| fields All_Risk.threat_object
+| mvcombine All_Risk.threat_object delim="\",\"" 
+| nomv All_Risk.threat_object 
+| rename All_Risk.threat_object as search | eval search="(\"".search."\")"]
+by All_Risk.risk_object
+| fields All_Risk.risk_object
+| mvcombine All_Risk.risk_object delim=","
+| nomv All_Risk.risk_object
+| rename All_Risk.risk_object as search  | eval search="(".search.")"]
+by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_Risk.threat_object_type
+| rename All_Risk.* as *
+| search threat_object=* 
+| table risk_object risk_object_type threat_object threat_object_type
+| eval threat_object = replace (threat_object , "\"" , "")
+| eval orig_threat_object=threat_object
+| eval threat_object=if(len(threat_object) &gt; 25,substr(threat_object,1,25)."...",threat_object)
+|dedup risk_object, risk_object_type, threat_object
+| eval from=risk_object, to=threat_object, type=risk_object_type
+| appendpipe [| eval from=threat_object, to="", type=threat_object_type]
+| lookup attack_web_viz type as type
+| eval linktext=threat_object_type
+| rename viz as type
+| eval value=orig_threat_object
+|search NOT risk_object="system"</set>
+          </condition>
+        </change>
+        <default>1</default>
+        <initialValue>1</initialValue>
+      </input>
+      <viz type="network-diagram-viz.network-diagram-viz">
+        <search depends="$show_web$">
+          <query>$depth_tok$</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="network-diagram-viz.network-diagram-viz.arrowLocation">end</option>
+        <option name="network-diagram-viz.network-diagram-viz.canZoom">true</option>
+        <option name="network-diagram-viz.network-diagram-viz.clusterBy">none</option>
+        <option name="network-diagram-viz.network-diagram-viz.defaultLinkLength">100</option>
+        <option name="network-diagram-viz.network-diagram-viz.defaultNodeType">code</option>
+        <option name="network-diagram-viz.network-diagram-viz.draggableNodes">true</option>
+        <option name="network-diagram-viz.network-diagram-viz.drilldownClick">singleAndDouble</option>
+        <option name="network-diagram-viz.network-diagram-viz.enablePhysics">false</option>
+        <option name="network-diagram-viz.network-diagram-viz.hierarchy">true</option>
+        <option name="network-diagram-viz.network-diagram-viz.hierarchyDirection">Top-Down</option>
+        <option name="network-diagram-viz.network-diagram-viz.hierarchySortMethod">hubsize</option>
+        <option name="network-diagram-viz.network-diagram-viz.levelSeparation">150</option>
+        <option name="network-diagram-viz.network-diagram-viz.linkTextLocation">bottom</option>
+        <option name="network-diagram-viz.network-diagram-viz.linkTextSize">medium</option>
+        <option name="network-diagram-viz.network-diagram-viz.nodeSpacing">100</option>
+        <option name="network-diagram-viz.network-diagram-viz.nodeTextSize">medium</option>
+        <option name="network-diagram-viz.network-diagram-viz.shakeTowards">roots</option>
+        <option name="network-diagram-viz.network-diagram-viz.smoothEdgeType">dynamic</option>
+        <option name="network-diagram-viz.network-diagram-viz.smoothEdges">true</option>
+        <option name="network-diagram-viz.network-diagram-viz.tokenNode">nd_node_token</option>
+        <option name="network-diagram-viz.network-diagram-viz.tokenToNode">nd_to_node_token</option>
+        <option name="network-diagram-viz.network-diagram-viz.tokenToolTip">nd_tooltip_token</option>
+        <option name="network-diagram-viz.network-diagram-viz.tokenValue">nd_value_token</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$hide_asset$">
+      <title>Asset Framework Details</title>
+      <table>
+        <search>
+          <progress>
+            <condition match="'job.resultCount' == 0">
+              <unset token="hide_asset"></unset>
+            </condition>
+            <condition>
+              <set token="hide_asset">true</set>
+            </condition>
+          </progress>
+          <query>|inputlookup asset_lookup_by_str|search asset="$field_risk_object$"| appendcols [|from datamodel:"Risk"."All_Risk" |search risk_object="$field_risk_object$" risk_object_type="system"|stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$hide_identity$">
+      <title>Identity Framework Details</title>
+      <table>
+        <search>
+          <progress>
+            <condition match="'job.resultCount' == 0">
+              <unset token="hide_identity"></unset>
+            </condition>
+            <condition>
+              <set token="hide_identity">true</set>
+            </condition>
+          </progress>
+          <query>|inputlookup identity_lookup_expanded |search identity="$field_risk_object$"| eval startDate=strftime(startDate,"%m/%d/%y %H:%M:%S")| appendcols [|from datamodel:"Risk"."All_Risk" |search risk_object="$field_risk_object$" risk_object_type="user"|stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
     <panel>
-      <title>Risk Rules: Num Risk Objects versus Aggregate Score</title>
+      <title>Risk Factors Matched</title>
+      <table>
+        <search>
+          <query>|tstats `summariesonly` values(All_Risk.risk_factor_mult_matched) as risk_factor_mult_matched values(All_Risk.risk_factor_add_matched) as risk_factor_add_matched from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" by All_Risk.risk_object|eval risk_factors = mvappend('risk_factor_mult_matched', 'risk_factor_add_matched')|table risk_factors</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>ATT&amp;CK Tactics Timeline</title>
       <chart>
         <search>
-          <query>|tstats `summariesonly` dc(All_Risk.risk_object) as "Num of Risk Objects",sum(All_Risk.calculated_risk_score) as "Agg Score", max(All_Risk.calculated_risk_score) as max_score from datamodel="Risk.All_Risk" by source</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
+          <query>| tstats `summariesonly` count from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.annotations.mitre_attack.mitre_tactic _time span=15m
+|rename "All_Risk.annotations.mitre_attack.mitre_tactic" as tactics
+| timechart cont=FALSE span=15m sum(count) as count by tactics</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
@@ -33,14 +258,14 @@
         <option name="charting.axisY2.abbreviation">none</option>
         <option name="charting.axisY2.enabled">0</option>
         <option name="charting.axisY2.scale">inherit</option>
-        <option name="charting.chart">bubble</option>
+        <option name="charting.chart">area</option>
         <option name="charting.chart.bubbleMaximumSize">50</option>
         <option name="charting.chart.bubbleMinimumSize">10</option>
         <option name="charting.chart.bubbleSizeBy">area</option>
-        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.nullValueMode">zero</option>
         <option name="charting.chart.showDataLabels">none</option>
         <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
-        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.chart.style">shiny</option>
         <option name="charting.drilldown">none</option>
         <option name="charting.layout.splitSeries">0</option>
@@ -52,16 +277,106 @@
         <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
-        <option name="trellis.size">medium</option>
+        <option name="trellis.size">large</option>
       </chart>
     </panel>
     <panel>
-      <title>Risk Rules:  Unique Threat Objects Versus Aggregate Score</title>
+      <title>ATT&amp;CK Techniques Timeline</title>
       <chart>
         <search>
-          <query>|tstats `summariesonly` dc(All_Risk.threat_object) as "Num Unique Threat Objects",sum(All_Risk.calculated_risk_score) as "Agg Score", max(All_Risk.calculated_risk_score) as max_score from datamodel="Risk.All_Risk" by source</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
+          <query>| tstats `summariesonly` count from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.annotations.mitre_attack.mitre_technique _time span=15m
+|rename "All_Risk.annotations.mitre_attack.mitre_technique" as techniques
+| timechart cont=FALSE span=15m sum(count) as count by techniques</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">large</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Threat Objects</title>
+        <search>
+          <query>| tstats `summariesonly` count from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.threat_object_type _time span=15m
+|rename "All_Risk.threat_object_type" as threats
+| timechart cont=FALSE span=15m sum(count) as count by threats</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>AT&amp;CK Tactics</title>
+        <search>
+          <query>| tstats `summariesonly` count sum(All_Risk.calculated_risk_score) as "Aggregate Score" avg(All_Risk.calculated_risk_score) as "Average Score" from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.annotations.mitre_attack.mitre_tactic</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">bubble</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>ATT&amp;CK Techniques</title>
+        <search>
+          <query>| tstats `summariesonly` count sum(All_Risk.calculated_risk_score) as "Aggregate Score" avg(All_Risk.calculated_risk_score) as "Average Score" from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.annotations.mitre_attack.mitre_technique</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="charting.chart">bubble</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Threat Objects</title>
+        <search>
+          <query>| tstats `summariesonly` count sum(All_Risk.calculated_risk_score) as "Aggregate Score" avg(All_Risk.calculated_risk_score) as "Average Score" from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.threat_object_type</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="charting.chart">bubble</option>
         <option name="charting.drilldown">none</option>
@@ -71,164 +386,147 @@
   </row>
   <row>
     <panel>
-      <title>MITRE ATT&amp;CK:  Num ATT&amp;CK Tactics Versus Aggregate Score</title>
-      <chart>
+      <title>Risk Attribution Timeline</title>
+      <viz type="event-timeline-viz.event-timeline-viz">
         <search>
-          <query>|tstats `summariesonly` dc(All_Risk.annotations.mitre_attack.mitre_tactic) as "Num Tactics",sum(All_Risk.calculated_risk_score) as "Agg Score", max(All_Risk.calculated_risk_score) as max_score from datamodel="Risk.All_Risk" by All_Risk.annotations.mitre_attack.mitre_tactic</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">bubble</option>
-        <option name="charting.drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>MITRE ATT&amp;CK:  Num ATT&amp;CK Techniques Versus Aggregate Score</title>
-      <chart>
-        <search>
-          <query>|tstats `summariesonly` dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as count,sum(All_Risk.calculated_risk_score) as "Agg Score", max(All_Risk.calculated_risk_score) as max_score from datamodel="Risk.All_Risk" by All_Risk.annotations.mitre_attack.mitre_technique_id|rename "All_Risk.annotations.mitre_attack.mitre_technique_id" as Technique|rex field=Technique "(?&lt;Technique&gt;.....)"|stats sum(count) as count sum("Agg Score") as "Agg Score" max("max_score") as "max_score" by Technique|lookup mitre_attack_lookup mitre_technique_id as Technique OUTPUT mitre_technique|table mitre_technique, count, "Agg Score", max_score|rename count as "Num Techniques"</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">bubble</option>
-        <option name="charting.drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Threat Object Types:  Num Threat Object Types Versus Aggregate Score</title>
-      <chart>
-        <search>
-          <query>|tstats `summariesonly` dc(All_Risk.annotations.mitre_attack.mitre_tactic) as "Num Tactics",sum(All_Risk.risk_score) as "Agg Score", max(All_Risk.risk_score) as max_score from datamodel="Risk.All_Risk" by All_Risk.threat_object_type</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">bubble</option>
-        <option name="charting.drilldown">none</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>Threat Object Types:  Num ATT&amp;CK Techniques Versus Aggregate Score</title>
-      <chart>
-        <search>
-          <query>|tstats `summariesonly` dc(All_Risk.annotations.mitre_attack.mitre_technique) as "Num Techniques",sum(All_Risk.risk_score) as "Agg Score", max(All_Risk.risk_score) as max_score from datamodel="Risk.All_Risk" by All_Risk.threat_object_type</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">bubble</option>
-        <option name="charting.drilldown">none</option>
-      </chart>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Risk Rules -&gt; Risk Notable Type</title>
-      <viz type="sankey_diagram_app.sankey_diagram">
-        <search>
-          <query>`notable`|search eventtype="risk_notables"|stats sum(risk_score) as "Agg Score" count by orig_source,source|sort - "Agg Score"</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
+          <query>| tstats `summariesonly` count values(source) as source from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.risk_message, _time span=15m
+|rename "All_Risk.risk_message" as risk_message
+|eval risk_message=if(len(risk_message)&gt;150,substr(risk_message,1,150)."..&lt;cut&gt;",risk_message)
+| eval source=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1")
+| table _time source risk_message threat_object
+| eval start=_time, label=source, tooltip=risk_message, data=threat_object
+| dedup _time label</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="height">450</option>
         <option name="refresh.display">progressbar</option>
       </viz>
     </panel>
-    <panel>
-      <title>Risk Rules -&gt; Risk Objects</title>
-      <viz type="sankey_diagram_app.sankey_diagram">
-        <search>
-          <query>|tstats `summariesonly` sum(All_Risk.calculated_risk_score) as "Agg Score" count from datamodel="Risk.All_Risk" by source,All_Risk.risk_object|rename "All_Risk.risk_object" as target|search "Agg Score" &gt;40|sort - "Agg Score"</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="drilldown">none</option>
-      </viz>
-    </panel>
   </row>
   <row>
     <panel>
-      <title>Risk Object Scoring versus Score Threshold</title>
-      <chart>
-        <title>User Risk Objects</title>
+      <title>Rules Triggered for the Risk Object (earliest time at top)</title>
+      <table>
+        <title>&lt;click to drilldown to raw data&gt;</title>
         <search>
-          <query>|tstats `summariesonly` sum(All_Risk.calculated_risk_score) as "Agg Score" from datamodel="Risk.All_Risk" where All_Risk.risk_object_type="user" All_Risk.risk_object!="system" by All_Risk.risk_object|rename "All_Risk.risk_object" as "Risk Object"|eval "Risk Threshold"=100|sort - "Agg Score"|head 10</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
+          <query>| tstats `summariesonly` count min(_time) as _time values(All_Risk.risk_object) as risk_object from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by source, All_Risk.annotations.mitre_attack.mitre_tactic
+|rename "All_Risk.annotations.mitre_attack.mitre_tactic" as "ATT&amp;CK Tactic"
+| eval Rule=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1")
+|stats values("ATT&amp;CK Tactic") as "ATT&amp;CK Tactic" values(count) as count min(_time) as firstSeen values(risk_object) as risk_object by Rule, _time, source
+|lookup drilldown_searches.csv source
+|eval drilldown_search=replace(drilldown_search,"REPLACEME",risk_object)
+|sort firstSeen</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.overlayFields">"Risk Threshold"</option>
-        <option name="charting.drilldown">none</option>
-      </chart>
+        <option name="drilldown">cell</option>
+        <fields>["Rule","ATT&amp;CK Tactic","count"]</fields>
+        <drilldown>
+          <link target="_blank">search?q=$row.drilldown_search$&amp;earliest=$timepicker.earliest$&amp;latest=$timepicker.latest$</link>
+        </drilldown>
+      </table>
     </panel>
-    <panel>
-      <title>Risk Object Scoring versus Score Threshold</title>
-      <chart>
-        <title>System Risk Objects</title>
-        <search>
-          <query>|tstats `summariesonly` sum(All_Risk.calculated_risk_score) as "Agg Score" from datamodel="Risk.All_Risk" where All_Risk.risk_object_type="system" All_Risk.risk_object!="system" by All_Risk.risk_object|rename "All_Risk.risk_object" as "Risk Object"|eval "Risk Threshold"=100|sort - "Agg Score"|head 10</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.overlayFields">"Risk Threshold"</option>
-        <option name="charting.drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
-      </chart>
-    </panel>
-    <panel>
-      <title>Threat Object Scoring versus Score Threshold</title>
-      <chart>
-        <search>
-          <query>|tstats `summariesonly` sum(All_Risk.calculated_risk_score) as "Agg Score" from datamodel="Risk.All_Risk" by All_Risk.threat_object|rename "All_Risk.threat_object" as "Threat Object"|eval "Risk Threshold"=100|sort - "Agg Score"|head 10</query>
-          <earliest>$time_picker.earliest$</earliest>
-          <latest>$time_picker.latest$</latest>
-        </search>
-        <option name="charting.chart">column</option>
-        <option name="charting.chart.overlayFields">"Risk Threshold"</option>
-        <option name="charting.drilldown">none</option>
-        <option name="refresh.display">progressbar</option>
-      </chart>
-    </panel>
-  </row>
-  <row>
     <panel>
       <table>
-        <title>Attribution related Search Activity</title>
+        <title>Related Threat Objects</title>
         <search>
-          <query>index=_internal sourcetype=scheduler NOT savedsearch_name="Threat - RR - TEST - Rule" savedsearch_name="* - RR - *" OR savedsearch_name="Threat - ATT&amp;CK Tactic Threshold Exceeded*" 
-| extract pairdelim=",", kvdelim="=", auto=f 
-| stats avg(result_count) as avg_results max(result_count) as max_results sparkline avg(run_time) as avg_runtime max(run_time) as max_runtime count AS execution_count by savedsearch_name, app 
-| join savedsearch_name type=outer 
-    [| rest splunk_server=local /servicesNS/-/-/saved/searches 
-    | fields title description eai:acl.app eai:acl.sharing eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time, disabled actions 
-    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time" actions AS "Adaptive Response Actions", eai:acl.sharing AS Sharing] 
-    
-|eval comment="This is just to make the demo work below since we do not have execution results in _internal"
-| append 
-    [| rest splunk_server=local /servicesNS/-/-/saved/searches 
-    | search title="* - RIR - *" OR title="* - RR - *" 
-    | fields title description eai:acl.app eai:acl.sharing eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time, disabled actions 
-    | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time" actions AS "Adaptive Response Actions", eai:acl.sharing AS Sharing] 
-
-| join savedsearch_name type=outer
- [ | search index=risk | stats sum(risk_score) AS "total_risk" by source | rename source as savedsearch_name]
-
-| rename savedsearch_name AS "Saved Search Name" description AS Description 
-| eval Enabled = if(disabled=1, "False", "True")
-| sort - avg_runtime
-| makemv delim="," "Adaptive Response Actions" 
-| eval avg_runtime = round(avg_runtime, 1) 
-| eval avg_results = round(avg_results, 0) 
-| table "Saved Search Name", Description, App, Enabled, total_risk, "Adaptive Response Actions", "Cron Schedule", "Dispatch Earliest Time", "Dispatch Latest Time", execution_count, sparkline, avg_results, max_results, avg_runtime, max_runtime</query>
-          <earliest>0</earliest>
-          <latest></latest>
+          <query>|from datamodel:Risk.All_Risk|search risk_object="$field_risk_object$"
+|sort _time
+|table threat_object_type,threat_object</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
         </search>
         <option name="drilldown">none</option>
         <option name="refresh.display">progressbar</option>
       </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Related Risk Objects</title>
+      <table>
+        <title>&lt;click to drilldown to pivot to new risk object&gt;</title>
+        <search>
+          <query>|tstats `summariesonly` count, values(All_Risk.src) as src, values(All_Risk.dest) as dest, values(source) as source, values(All_Risk.risk_object_type) as risk_object_type values(All_Risk.user) as user from datamodel=Risk.All_Risk where All_Risk.user="$field_risk_object$" OR All_Risk.dest="$field_risk_object$" OR All_Risk.src="$field_risk_object$" OR All_Risk.threat_object="$field_risk_object$" All_Risk.risk_object!="$field_risk_object$" by All_Risk.risk_object|rename "All_Risk.risk_object" as risk_object|rex field=source "^.*?.-.RR.-.(?&lt;Rule&gt;.*?).-.\w+.-.Rule$"|fields - source|sort - count</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">/app/SA-AttributionDemo/risk_attributions?form.field_risk_object=$row.risk_object$&amp;form.field_risk_object_type=$row.risk_object_type$</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Notables for $field_risk_object$</title>
+      <table>
+        <search>
+          <query>`notable`|search risk_object="$field_risk_object$"|`notable_owners`|search _raw=*|rex field=_raw "search_name=.(?&lt;search_name&gt;[^\"]+)\""|table _time,owner,search_name</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Messages</title>
+      <table>
+        <search>
+          <query>|from datamodel:"Risk.All_Risk"
+|search risk_object="$field_risk_object$" search_name="* - RR - *"
+|table _time,risk_message
+|sort _time</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Attributions</title>
+      <event>
+        <search>
+          <query>|from datamodel:"Risk.All_Risk"
+|search risk_object="$field_risk_object$" search_name="* - RR - *"
+|sort _time</query>
+          <earliest>$timepicker.earliest$</earliest>
+          <latest>$timepicker.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <fields>search_name</fields>
+        <option name="count">20</option>
+        <option name="list.drilldown">none</option>
+        <option name="list.wrap">1</option>
+        <option name="maxLines">5</option>
+        <option name="raw.drilldown">full</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">0</option>
+        <option name="table.drilldown">none</option>
+        <option name="table.sortDirection">asc</option>
+        <option name="table.wrap">1</option>
+        <option name="type">table</option>
+      </event>
     </panel>
   </row>
 </form>
