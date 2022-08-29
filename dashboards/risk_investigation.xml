@@ -1,0 +1,523 @@
+<form version="1.1">
+  <label>Risk Investigation Dashboard</label>
+  <init>
+    <unset token="risk_rule_drilldown">false</unset>
+    <set token="no_zero_risk_events">true</set>
+    <set token="no_zero_risk_messages"></set>
+    <set token="no_zero_risk_timeline">true</set>
+    <unset token="no_zero_risk_selection">false</unset>
+    <unset token="show_zero_risk_events"></unset>
+    <unset token="show_zero_risk_messages"></unset>
+    <unset token="show_zero_risk_timeline"></unset>
+    <unset token="show_zero_risk_selection"></unset>
+    <unset token="user-by-systems"></unset>
+    <unset token="systems-by-user"></unset>
+    <unset token="threat_token"></unset>
+    <unset token="threat_object_panel"></unset>
+    <set token="search_filter">*</set>
+  </init>
+  <search id="base_search">
+    <query>| tstats summariesonly=t count values(All_Risk.risk_message) as risk_message values(All_Risk.risk_score) as risk_score values(All_Risk.savedsearch_description) as description values(All_Risk.annotations._all) as annotation values(source) as source values(All_Risk.src) as src values(All_Risk.user) as user values(All_Risk.threat_object) as threat_object from datamodel=Risk.All_Risk where All_Risk.risk_object=$field_rv$ groupby _time,All_Risk.risk_score,All_Risk.risk_message span=1s | table * | dedup _time risk_message </query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+  </search>
+  <search id="no_zero_risk_events" base="base_search">
+    | search NOT risk_score=0
+  </search>
+  <search id="Count">
+    <query>| tstats summariesonly=t count as event_count from datamodel=Risk.All_Risk where All_Risk.risk_object=$field_rv$ groupby All_Risk.risk_object   </query>
+    <earliest>-30d</earliest>
+    <latest>now</latest>
+    <progress>
+      <set token="event_count">$result.event_count$</set>
+    </progress>
+  </search>
+  <search id="Threats">
+    <query>index=risk (NOT source="/opt/*" risk_object="$field_rv$")
+| stats count values(source) as source dc(risk_message) as risk_messages by threat_object
+| eventstats dc(threat_object) as dc_threats
+</query>
+    <earliest>$timepicker.earliest$</earliest>
+    <latest>$timepicker.latest$</latest>
+    <done>
+      <set token="dc_threats">$result.dc_threats$</set>
+    </done>
+  </search>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="field2">
+      <label>Risk Object Type</label>
+      <choice value="user">User</choice>
+      <change>
+        <condition value="user">
+          <set token="showUser">true</set>
+          <unset token="showSystem"></unset>
+        </condition>
+        <condition value="system">
+          <set token="showSystem">true</set>
+          <unset token="showUser"></unset>
+        </condition>
+      </change>
+      <choice value="system">System</choice>
+      <change>
+        <condition value="system">
+          <set token="showSystem">true</set>
+          <unset token="showUser"></unset>
+        </condition>
+        <condition value="user">
+          <set token="showUser">true</set>
+          <unset token="showSystem"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="field_rv" searchWhenChanged="false">
+      <label>Risk Object Value</label>
+    </input>
+    <input type="time" token="timepicker">
+      <label>Time Range</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel id="riskScore">
+      <title>Aggregate Risk Score</title>
+      <single>
+        <search base="no_zero_risk_events">
+          <query>
+| eval risk_score = round(risk_score,0) , risk_message = risk_score." - ".risk_message
+| streamstats sum(risk_score) as score_original values(source) as sources values(risk_message) as risk_messages by risk_object
+| dedup risk_message risk_score
+| stats sum(risk_score) as risk_score</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">120</option>
+        <option name="underLabel">risk score for selected time range</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,60,120,200]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>
+| makeresults | eval count = "$event_count$" | eval count = if(isnum(count),count,"0")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Events in Past 30 Days</option>
+        <option name="height">80</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,20,50,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+      <single>
+        <search>
+          <query>
+| makeresults | eval count = "$notable_count$" | eval count = if(isnum(count),count,"0")</query>
+        </search>
+        <drilldown>
+          <set token="check_notable"></set>
+        </drilldown>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Notables in Past 30 Days</option>
+        <option name="height">80</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,20,50,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel id="userPanel1">
+      <title>Risk Object Info</title>
+      <table depends="$showUser$">
+        <search>
+          <query>| inputlookup identity_lookup_expanded | search identity="$field_rv$" | table first last identity bunit startDate endDate watchlist_name | eval startDate=strftime(startDate,"%Y-%m-%d") , endDate=strftime(endDate,"%Y-%m-%d")</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+      <table depends="$showSystem$">
+        <search>
+          <query>| inputlookup asset_lookup_by_str | search nt_host="$field_rv$" | table wks_ip wks_usr wks_dom category city</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$check_notable$">
+      <title>Notables for $field_rv$ in past 30 days</title>
+      <table>
+        <search>
+          <query>
+`get_notable_index` risk_object=$field_rv$
+| eval indexer_guid=replace('_bkt',".*~(.+)","\\1"), event_hash=md5(('_time' . '_raw')), event_id=((((indexer_guid . "@@") . index) . "@@") . event_hash), rule_id=event_id 
+| eval latest=orig_time+1800 , earliest=orig_time-1800
+| search event_id="*" 
+| fields - "host_*" 
+| tags outputfield=tag 
+| eval tag=mvdedup(mvappend(tag,NULL,orig_tag)) 
+| dedup rule_id 
+| lookup update=true notable_xref_lookup event_id OUTPUTNEW xref_name as notable_xref_name,xref_id as notable_xref_id 
+| eval notable_xref=mvzip(notable_xref_name,notable_xref_id,":") 
+| eval temp_time=(time() + 86400) 
+| lookup update=true event_time_field=temp_time incident_review_lookup rule_id OUTPUT owner as new_owner, urgency as new_urgency, status as new_status, disposition as new_disposition 
+| lookup update=true event_time_field=temp_time incident_review_comment_lookup rule_id OUTPUT time as review_time,user as reviewer,comment 
+| eval owner=if(isnotnull(new_owner),new_owner,owner), status=case(isnotnull(new_status),new_status,isnotnull(status),status,true(),default_status), urgency=if(isnotnull(new_urgency),new_urgency,urgency), disposition=if(isnotnull(new_disposition),new_disposition,default_disposition) 
+| fields - temp_time, new_owner, new_status, new_urgency, new_disposition 
+| eval temp_status=if(isnull(status),-1,status) 
+| lookup update=true reviewstatuses_lookup _key as temp_status OUTPUT status,label as status_label,description as status_description,default as status_default,end as status_end 
+| eval status=if(isnull(status_label),0,status), status_label=if(isnull(status_label),"Unassigned",status_label), status_description=if(isnull(status_description),"unknown",status_description), status_default=case(match(status_default,"1|[Tt]|[Tt][Rr][Uu][Ee]"),"true",match(status_default,"0|[Ff]|[Ff][Aa][Ll][Ss][Ee]"),"false",true(),status_default), status_end=case(match(status_end,"1|[Tt]|[Tt][Rr][Uu][Ee]"),"true",match(status_end,"0|[Ff]|[Ff][Aa][Ll][Ss][Ee]"),"false",true(),status_end), status_group=case((status_default == "true"),"New",(status_end == "true"),"Closed",(status == 0),"New",true(),"Open") 
+| fields - temp_status 
+| eval temp_disposition=if(isnull(disposition),-3,disposition) 
+| lookup update=true disposition_lookup _key as temp_disposition OUTPUT status as disposition,label as disposition_label,description as disposition_description,default as disposition_default 
+| eval disposition=if(isnull(disposition),"disposition:0",disposition), disposition_label=if(isnull(disposition_label),"Unassigned",disposition_label), disposition_description=if(isnull(disposition_description),"An error is preventing the event from having a valid disposition.",disposition_description), disposition_default=case(match(disposition_default,"1|[Tt]|[Tt][Rr][Uu][Ee]"),"true",match(disposition_default,"0|[Ff]|[Ff][Aa][Ll][Ss][Ee]"),"false",true(),disposition_default) 
+| fields - temp_disposition 
+| table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest
+| eventstats count as notable_count count(eval(status_label="Incident")) as incident_count | eval incident_count = if(isnull(incident_count),"0",incident_count) | rename status_label as status
+| eval ir_link = "https://i-0f475f545da6fbdc2.splunk.show/en-US/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=".earliest."&amp;latest=".latest."&amp;status=*&amp;urgency=*&amp;search=event_hash%3D".event_hash
+</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+          <progress>
+            <set token="notable_count">$result.notable_count$</set>
+            <set token="incident_count">$result.incident_count$</set>
+          </progress>
+        </search>
+        <drilldown>
+          <condition match="match('click.name2', &quot;comment&quot;)">
+            <link target="_blank">$row.ir_link|n$</link>
+          </condition>
+          <condition>
+            <unset token="check_notable"></unset>
+          </condition>
+        </drilldown>
+        <fields>_time owner status comment</fields>
+        <format type="color" field="comment">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <option name="count">10</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+  </panel>
+  </row>
+  <row>
+    <panel depends="$no_zero_risk_events$">
+      <title>Event Breakdown</title>
+      <table>
+        <search base="no_zero_risk_events">
+          <query>| stats count as Events sum(risk_score) as risk_sum dc(risk_message) as "Distinct Events" values(description) as Description values(annotation) as Annotation by source | rename source as Rule | eval risk_sum = round(risk_sum,0) | rename risk_sum as "Risk Sum" | sort - "Risk Sum" </query>
+        </search>
+        <fields>"Events" "Risk Sum" "Rule" "Description" "Annotation"</fields>
+        <drilldown>
+          <set token="risk_rule_drilldown">$row.Rule$</set>
+        </drilldown>
+        <format type="color" field="Risk Sum">
+          <colorPalette type="minMidMax" maxColor="#eb441e" midColor="#ebe81e" minColor="#1eeb36"></colorPalette>
+          <scale type="minMidMax" maxType="number" maxValue="80" midType="number" midValue="40" minType="number" minValue="0"></scale>
+        </format>
+        <format type="color" field="Rule">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel depends="$risk_rule_drilldown$">
+      <table>
+        <search>
+          <query>
+  | rest splunk_server=local count=0 /services/saved/searches 
+  | search title="$risk_rule_drilldown$" | rename dispatch.earliest_time as early_time
+  | table title qualifiedSearch early_time
+</query>
+          <progress>
+            <set token="qualifiedSearch">$result.qualifiedSearch$</set>
+            <set token="earlySearch">$result.early_time$</set>
+          </progress>
+        </search>
+        <format type="color" field="qualifiedSearch">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <drilldown>
+          <condition match="match('click.name2', &quot;qualifiedSearch&quot;)">
+            <link target="_blank">search?q=$qualifiedSearch$&amp;earliest=$earlySearch$&amp;latest=$timepicker.latest$</link>
+          </condition>
+          <condition>
+            <unset token="risk_rule_drilldown"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$no_zero_risk_timeline$">
+      <title>Timeline of Events</title>
+      <chart>
+        <search base="no_zero_risk_search">
+          <query> | stats count as count by _time,risk_score,risk_message  | timechart span=30min limit=0 values(risk_score) as risk_score by risk_message
+        </query>
+        </search>
+        <selection>
+          <set token="selection.earliest">$start$</set>
+          <set token="selection.latest">$end$</set>
+        </selection>
+        <option name="charting.axisLabelsY.majorUnit">1</option>
+        <option name="charting.axisTitleX.text">timeline</option>
+        <option name="charting.axisTitleY.text">score</option>
+        <option name="charting.axisTitleY2.text">hmm</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Risk Events</title>
+        <search>
+          <query>| makeresults 
+    | eval count="0" | eval count= if(isint($addriskmsg_count$),"$addriskmsg_count$",0)
+    | fields count | table count | sort - count </query>
+        </search>
+        <drilldown>
+          <set token="no_zero_risk_messages"></set>
+          <unset token="threat_object_panel"></unset>
+          <unset token="threat_token"></unset>
+          <unset token="no_zero_risk_selection"></unset>
+        </drilldown>
+        <option name="height">50</option>
+        <option name="rangeColors">["0xdc4e41","0x3c444d"]</option>
+        <option name="rangeValues">[1000]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Threat Objects</title>
+        <search>
+          <query>| makeresults 
+    | eval count="0" | eval count= if(isint($dc_threats$),"$dc_threats$",0)
+    | fields count | table count | sort - count </query>
+        </search>
+        <drilldown>
+          <set token="threat_object_panel"></set>
+          <unset token="no_zero_risk_messages"></unset>
+          <unset token="threat_token"></unset>
+          <unset token="no_zero_risk_selection"></unset>
+        </drilldown>
+        <option name="height">50</option>
+        <option name="rangeColors">["0xdc4e41","0x3c444d"]</option>
+        <option name="rangeValues">[1000]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel rejects="$threat_object_panel$,$user-by-systems$,$systems-by-user$">
+      <title>Risk Messages for risk_object=$field_rv$ (click to drilldown)</title>
+      <input type="link" depends="$no_zero_risk_timeline$">
+        <choice value="no-selection">All Events (Default)</choice>
+        <choice value="so-selection">Use Selection</choice>
+        <default>no-selection</default>
+        <change>
+          <condition value="no-selection">
+            <set token="no_zero_risk_messages">true</set>
+            <unset token="no_zero_risk_selection"></unset>
+            <unset token="selection"></unset>
+          </condition>
+          <condition value="so-selection">
+            <set token="no_zero_risk_selection">true</set>
+            <set token="selection"></set>
+            <unset token="no_zero_risk_messages"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="search_filter" searchWhenChanged="true">
+        <label>Message Filter</label>
+        <initialValue>*</initialValue>
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$no_zero_risk_messages$">
+        <search base="no_zero_risk_events" id="no_zero_risk_search">
+          <query>
+            | eval risk_score = round(risk_score)
+| eval risk_message = risk_score." - ".risk_message
+| table _time source risk_message risk_score threat_object threat_short
+| sort + _time
+| eventstats count(risk_message) as riskmsg_count
+| search $search_filter$ | eventstats count(risk_message) as addriskmsg_count
+          </query>
+          <progress>
+            <set token="addriskmsg_count">$result.addriskmsg_count$</set>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <format type="color" field="threat_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <fields>["_time","source","risk_message","threat_object"]</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <set token="threat_token">$click.value2$</set>
+          </condition>
+          <condition match="match('click.name2', &quot;risk_message&quot;)">
+            <link target="_blank">search?q=index=proxy category="FileHost" NOT dest IN ("*.icloud.com","*.live.com","d.docs.live.net","docs.live.net","api.onedrive.com","*.box.com") $field_rv$ earliest=$timepicker.earliest$ | stats values(src_user_bunit) as src_user_bunit count sum(bytes) as bytes by dest,src_user</link>
+          </condition>
+          <condition>
+            <unset token="nothing"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  <panel>
+      <table depends="$no_zero_risk_selection$">
+        <search base="no_zero_risk_search" id="no_zero_risk_search_selection">
+          <query>
+             | where _time &gt; $selection.earliest$ AND _time &lt; $selection.latest$
+          </query>
+          <progress>
+            <set token="addriskmsg_count">$result.addriskmsg_count$</set>
+          </progress>
+        </search>
+        <option name="count">10</option>
+        <format type="color" field="threat_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <fields>["_time","source","risk_message","threat_object"]</fields>
+        <drilldown>
+          <set token="threat_token">$click.value2$</set>
+        </drilldown>
+      </table>
+    </panel>
+    <panel depends="$threat_object_panel$">
+      <title>Threat Objects</title>
+      <table>
+        <search base="Threats">
+          <query>
+</query>
+        </search>
+        <fields>count risk_messages source threat_object</fields>
+        <drilldown>
+          <set token="threat_token">$row.threat_object$</set>
+        </drilldown>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$threat_token$">
+      <single>
+        <title>Number of Events</title>
+        <search>
+          <query>| makeresults | eval num_objects = if(isint($num_objects$),"$num_objects$",0) | table num_objects
+          </query>
+        </search>
+        <drilldown>
+            <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Risk Rule Sources</title>
+        <search>
+          <query>| makeresults | eval source_count = if(isint($source_count$),"$source_count$",0) | table source_count</query>
+        </search>
+        <drilldown>
+            <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Risk Objects</title>
+        <search>
+          <query>| makeresults 
+| eval risk_objects = if(isint($ro_count$),"$ro_count$",0)
+| table risk_objects</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <drilldown>
+            <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <table>
+        <title>Past 30 Days for $threat_token$</title>
+        <search id="threat_breakdown">
+          <query>| tstats summariesonly=t count values(All_Risk.risk_message) as risk_message values(All_Risk.risk_score) as risk_score values(source) as sources values(All_Risk.risk_object_type) as risk_object_type from datamodel=Risk.All_Risk where All_Risk.threat_object="$threat_token$" groupby All_Risk.risk_object _time span=30d | rename All_Risk.risk_object as risk_object | table * | eval risk_score = mvindex(risk_score,0) , risk_score=round(risk_score,0) , risk_message = mvindex(risk_message,0) , risk_message = risk_score." - ".risk_message | eventstats dc(risk_object) as ro_count dc(sources) as source_count sum(count) as num_objects | rename risk_message AS sample_message </query>
+          <earliest>-30d</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+          <progress>
+            <set token="ro_count">$result.ro_count$</set>
+            <set token="source_count">$result.source_count$</set>
+            <set token="num_objects">$result.num_objects$</set>
+          </progress>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="risk_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <fields>["risk_object","count","sample_message"]</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;risk_object&quot;)">
+            <link target="_blank">/app/SplunkEnterpriseSecuritySuite/risk_investigation_dashboard?form.field_rv=$click.value2$&amp;form.timepicker.earliest=-30d&amp;form.timepicker.latest=now</link>
+          </condition>
+          <condition>
+            <unset token="threat_token"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>
