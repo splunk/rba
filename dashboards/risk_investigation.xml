@@ -1,3 +1,4 @@
+<!-- I've left some no_zero / show_zero tokens in case you'd like to add a toggle for risk events with a score of 0. You would just need to duplicate every panel with a depends so when you set the context toggle, the corresponding panels disappear/reappear. I've left the input toggle commented out so you can add it if you'd like. -->
 <form version="1.1">
   <label>Risk Investigation Dashboard</label>
   <init>
@@ -79,6 +80,35 @@
         <latest>now</latest>
       </default>
     </input>
+<!-- 
+  <input type="link">
+      <choice value="context-clear">Risk Scoring Only</choice>
+      <choice value="context-full">Include 0 Risk Score Events</choice>
+      <default>context-clear</default>
+      <change>
+        <condition value="context-clear">
+          <set token="no_zero_risk_events">true</set>
+          <set token="no_zero_risk_messages"></set>
+          <set token="no_zero_risk_timeline">true</set>
+          <unset token="no_zero_risk_selection">false</unset>
+          <unset token="show_zero_risk_events"></unset>
+          <unset token="show_zero_risk_messages"></unset>
+          <unset token="show_zero_risk_timeline"></unset>
+          <unset token="show_zero_risk_selection"></unset>
+        </condition>
+        <condition value="context-full">
+          <set token="show_zero_risk_events">true</set>
+          <set token="show_zero_risk_messages"></set>
+          <set token="show_zero_risk_timeline">true</set>
+          <unset token="show_zero_risk_selection">false</unset>
+          <unset token="no_zero_risk_events"></unset>
+          <unset token="no_zero_risk_messages"></unset>
+          <unset token="no_zero_risk_timeline"></unset>
+          <unset token="no_zero_risk_selection"></unset>
+        </condition>
+      </change>
+    </input>
+-->
   </fieldset>
   <row>
     <panel id="riskScore">
