@@ -55,6 +55,7 @@ Create an eventtype called something like `QA` and have it apply a tag called `Q
 ```
 ...
 WHERE NOT All_Risk.tag=QA
+...
 ```
 To your Risk Incident Rules. This keeps your curated risk ecology preserved so you can compare how many Risk Notables you would see if your QA content was added.
 
