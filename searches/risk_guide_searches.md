@@ -7,6 +7,7 @@
 | eval benign_rate = 1 - incident / (incident + closed)
 | sort - benign_rate
 ```
+Be sure to replace the `status_label` with whatever is used in your environment.
 
 ## Risk Rules Generating the Most Risk
 ```
