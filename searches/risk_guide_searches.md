@@ -109,7 +109,7 @@ In this example, we are:
 - reducing the score by 50 for a signature that isn't generally bad but we still want to add a small amount of risk
 - zeroing out the score for a signature of something a lot of our users have installed and we can't really control, but still want to observe is happening
 - reducing the score by 25 for an unsuccessful HTTP connection
-- increasing the score by 50 and potentially alerting directly in case someone who *isn't* on the Threat Intelligence team testing malware
+- increasing the score by 50 and potentially alerting directly in case we see malware from someone who *isn't* on the Threat Intelligence team
 
 ### With `lookup`
 ```
