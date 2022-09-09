@@ -71,7 +71,7 @@ Make sure to add `prev_alerts` to the Incident Review Settings page so this show
 
 # Tuning
 ## Remove Results with a Lookup
-Once you have a lookup built out, it’s pretty easy to insert it into a search like this:
+Once you have a lookup built out, insert it into a search like this:
 ```
 index=proxy http_method="POST"
  NOT [| inputlookup RR_Proxy_Allowlist.csv
@@ -88,7 +88,7 @@ You could also do this with a datamodel:
  BY _time,Web.src
 ```
 
-Using Web.src / Web.dest because of datamodel field constraints in the SPL for tstats commands.
+Using the Web datamodel field constraints as an example so we can properly exclude results from index or datamodel based risk rules.
 
 ## Adjust Risk Scores
 ### With `eval`
