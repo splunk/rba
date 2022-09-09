@@ -88,6 +88,8 @@ You could also do this with a datamodel:
  BY _time,Web.src
 ```
 
+Using Web.src / Web.dest because of datamodel field constraints in the SPL for tstats commands.
+
 ## Adjust Risk Scores
 ### With `eval`
 ```
