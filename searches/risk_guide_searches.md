@@ -101,6 +101,16 @@ signature="Win32.Adware.YTDownloader","0",
 NOT http_code="200","-25",
 signature="Trojan.Win32.Emotet" AND NOT user_bunit="THREAT INTELLIGENCE","+50")
 ```
+
+Just make sure you have risk factors for the various values of `risk_adjust` you would like to use across all of your searches.
+
+In this example, we are:
+
+- reducing the score by 50 for a signature that isn't generally bad but we still want to add a small amount of risk
+- zeroing out the score for a signature of something a lot of our users have installed and we can't really control, but still want to observe is happening
+- reducing the score by 25 for an unsuccessful HTTP connection
+- increasing the score by 50 and potentially alerting directly in case someone who *isn't* on the Threat Intelligence team testing malware
+
 ### With `lookup`
 ```
 index=proxy signature=* 
@@ -108,7 +118,8 @@ index=proxy signature=*
 | lookup RR_Proxy_Adjust.csv src user user_bunit dest signature http_code
  OUTPUTNEW risk_adjust
  ```
-Just make sure you have risk factors for the various values of `risk_adjust` you would like to use across all of your searches.
+
+We can do the same with a lookup and as many relevant fields as we need for the most constrained exclusions.
 
 ## Dedup Similar Events from Counting Multiple Times in Risk Notables (Score)
 ```
@@ -127,6 +138,9 @@ Just make sure you have risk factors for the various values of `risk_adjust` you
  BY risk_object
 ...
 ```
+
+For making sure similar detections on basically the same event only count once in our total risk score.
+
 ## Weight Events from Noisy Sources in Risk Notables (Metadata)
 ```
 ...
@@ -144,3 +158,5 @@ BY All_Risk.risk_object,All_Risk.risk_object_type
 | eval "annotations.mitre_attack" = 'annotations.mitre_attack.mitre_technique_id'
 | where mitre_tactic_id_count >= 3 and source_count >= 4
 ```
+
+For tuning Risk Incident Rules that don't rely on an accretive score to alert, but still need a lever to tweak noisy sources.
