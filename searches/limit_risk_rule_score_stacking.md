@@ -1,6 +1,6 @@
 # Limit Contributions to Risk Score
 
-This logic will limit the number of times a risk rule can contribute to the total score of a risk object:
+This logic will limit the number of times risk rules can contribute to the total score of a risk object:
 
 ```
 | tstats summariesonly=false
@@ -17,3 +17,5 @@ This logic will limit the number of times a risk rule can contribute to the tota
  sum(count) as count
  BY All_Risk.risk_object , All_Risk.risk_object_type
 ```
+
+If you have searches ingesting alerts from IDS, DLP, EDR, or so on which can have thousands of individual detections, you may want to keep this logic from affecting those.
