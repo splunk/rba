@@ -11,5 +11,9 @@ This logic will limit the number of times a risk rule can contribute to the tota
  WHERE All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*")
  BY All_Risk.risk_object , All_Risk.risk_object_type , source
 | eval capped_risk_score=if(summed_risk_score < single_risk*3, summed_risk_score, single_risk_score*3)
-| stats sum(capped_risk_score) as risk_score, dc(source) as source, sum(count) as count by All_Risk.risk_object,All_Risk.risk_object_type
+| stats
+ sum(capped_risk_score) as risk_score
+ dc(source) as source
+ sum(count) as count
+ BY All_Risk.risk_object , All_Risk.risk_object_type
 ```
