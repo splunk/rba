@@ -95,28 +95,28 @@ Using the Web datamodel field constraints as an example so we can properly exclu
 ```
 index=proxy signature=*
 | table src user user_bunit dest signature http_code
-| eval risk_adjust = case(
-signature="JS:Adware.Lnkr.A","-50",
+| eval risk_score = case(
+signature="JS:Adware.Lnkr.A","10",
 signature="Win32.Adware.YTDownloader","0",
-NOT http_code="200","-25",
-signature="Trojan.Win32.Emotet" AND NOT user_bunit="THREAT INTELLIGENCE","+50")
+NOT http_code="200","25",
+signature="Trojan.Win32.Emotet" AND NOT user_bunit="THREAT INTELLIGENCE","100",
+true(),null())
 ```
-
-Just make sure you have risk factors for the various values of `risk_adjust` you would like to use across all of your searches.
 
 In this example, we are:
 
-- reducing the score by 50 for a signature that isn't generally bad but we still want to add a small amount of risk
+- assigning the score of 10 for a signature that isn't generally bad but we still want to add a small amount of risk
 - zeroing out the score for a signature of something a lot of our users have installed and we can't really control, but still want to observe is happening
-- reducing the score by 25 for an unsuccessful HTTP connection
-- increasing the score by 50 and potentially alerting directly in case we see malware from someone who *isn't* on the Threat Intelligence team
+- assigning the score of 25 for an unsuccessful HTTP connection
+- assigning the score of 100 and potentially alerting directly in case we see malware from someone who *isn't* on the Threat Intelligence team
+- assigning a null() value in every other case to utiilize the default risk score from the Risk Analysis action
 
 ### With `lookup`
 ```
 index=proxy signature=* 
 | table src user user_bunit dest signature http_code
 | lookup RR_Proxy_Adjust.csv src user user_bunit dest signature http_code
- OUTPUTNEW risk_adjust
+ OUTPUTNEW risk_score
  ```
 
 We can do the same with a lookup and as many relevant fields as we need for the most constrained exclusions.
