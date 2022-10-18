@@ -109,7 +109,7 @@ In this example, we are:
 - zeroing out the score for a signature of something a lot of our users have installed and we can't really control, but still want to observe is happening
 - assigning the score of 25 for an unsuccessful HTTP connection
 - assigning the score of 100 and potentially alerting directly in case we see malware from someone who *isn't* on the Threat Intelligence team
-- assigning a null() value in every other case to utiilize the default risk score from the Risk Analysis action
+- assigning a null() value in every other case to utilize the default risk score from the Risk Analysis action
 
 ### With `lookup`
 ```
