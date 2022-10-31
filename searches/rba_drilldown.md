@@ -11,6 +11,7 @@ index=risk
 | search risk_object=$risk_object$
 | rename annotations.mitre_attack.mitre_tactic_id AS mitre_tactic_id, annotations.mitre_attack.mitre_tactic AS mitre_tactic
 | rex field=_raw max_match=0 "(?<risk_info>[^\=]+\=\"([^\"]+\")+?)((, )|$)"
+| eval risk_info=mvfilter(NOT match(risk_info, "^(annotations)|(info_)|(savedsearch_description)|(risk_)|(orig_time)|(([0-9]+, )?search_name)"))
 | table _time, source, risk_object, risk_score, risk_message, risk_info, risk_object_type, mitre_tactic_id, mitre_tactic
 | eval calculated_risk_score=risk_score
 | sort _time
