@@ -404,6 +404,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
         <drilldown>
           <condition match="match('click.name2', &quot;threat_object&quot;)">
             <set token="threat_token">$click.value2$</set>
+            <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
           </condition>
           <condition match="match('click.name2', &quot;risk_message&quot;)">
             <link target="_blank">search?q=index=proxy category="FileHost" NOT dest IN ("*.icloud.com","*.live.com","d.docs.live.net","docs.live.net","api.onedrive.com","*.box.com") $field_rv$ earliest=$timepicker.earliest$ | stats values(src_user_bunit) as src_user_bunit count sum(bytes) as bytes by dest,src_user</link>
@@ -431,6 +432,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
         <fields>["_time","source","risk_message","threat_object"]</fields>
         <drilldown>
           <set token="threat_token">$click.value2$</set>
+          <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
         </drilldown>
       </table>
     </panel>
@@ -444,6 +446,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
         <fields>count risk_messages source threat_object</fields>
         <drilldown>
           <set token="threat_token">$row.threat_object$</set>
+          <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
         </drilldown>
         <option name="wrap">true</option>
       </table>
