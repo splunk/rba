@@ -25,7 +25,9 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
     <latest>$timepicker.latest$</latest>
   </search>
   <search id="no_zero_risk_events" base="base_search">
+    <query>
     | search NOT risk_score=0
+    </query>
   </search>
   <search id="Count">
     <query>| tstats summariesonly=t count as event_count from datamodel=Risk.All_Risk where All_Risk.risk_object=$field_rv$ groupby All_Risk.risk_object   </query>
