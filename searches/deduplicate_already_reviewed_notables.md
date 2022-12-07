@@ -1,4 +1,4 @@
-# Throttle Events Which Have Already Been Reviewed by Analysts
+# Throttle Alerts Which Have Already Been Reviewed
 
 Because Risk Notables look at a period of time, it is common for a risk_object to keep creating notables as additional (and even duplicate) events roll in, as well as when events fall off as the time period moves forward. It is difficult to get around this with throttling, so we'll be using a Saved Search to store each Risk Notable's risk events and analyst's determinations as a cross-reference for new notables and decide whether to create a new alert.
 
