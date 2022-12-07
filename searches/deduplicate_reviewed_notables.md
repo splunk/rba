@@ -7,21 +7,21 @@ Edits to the **Incident Review - Main** search ***may*** be replaced on updates 
 
 ## Extra Credit
 
-If you utilize [risk_info](https://github.com/splunk/rba/blob/main/searches/risk_info_event_detail.md) and utilize a short and sweet risk_message, this allows risk_message to become another level of granularity for your truth table (if you utilize risk_message for ALL of the event detail, it may be *too* granular and isn't as helpful for throttling). This is especially useful if you are creating risk events from a data source with its own signatures like EDR, IDS, or DLP. Because the initial truth table only looks at score and correlation rule, if you have one correlation rule importing numerous signatures, you may want to still alert when a new signature within that source fires.
+If you utilize [risk_info](https://github.com/splunk/rba/blob/main/searches/risk_info_event_detail.md) so you have a short and sweet risk_message, you can add another level of granularity to your truth table (if you utilize risk_message for ALL of the event detail, it may be *too* granular and isn't as helpful for throttling). This is especially useful if you are creating risk events from a data source with its own signatures like EDR, IDS, or DLP. Because the initial truth table only looks at score and correlation rule, if you have one correlation rule importing numerous signatures, you may want to alert when a new signature within that source fires.
 
 First, we'll create a new Calculated Field from risk_message in our Risk Datamodel called risk_hash with eval's md5() function, which bypasses the need to deal with special characters or other strangeness that might be in that field. If you haven't done this before - no worries - you just have to go to *Settings -> Data Models -> Risk Data Model -> Edit -> Edit Acceleration* and turn this off. Afterwards, you can *Create New -> Eval Expression* like this:
 
 ![creating risk_hash from md5(risk_message) in data model](https://github.com/splunk/rba/blob/main/searches/assets/calcfield_riskhash.png)
 
-Don't forget to re-enable acceleration, and you may have to rebuild the data model from the Data Model menu for this field to appear in your events.
+Don't forget to re-enable acceleration, and you may have to rebuild the data model from the *Settings -> Data Model* menu for this field to appear in your events.
 
-We have to add this field into our Risk Incident Rules by adding this line to their initial SPL:
+Then we have to add this field into our Risk Incident Rules by adding this line to their initial SPL:
 
 ```
 values(All_Risk.risk_hash) as risk_hashes
 ```
 
-Now our Risk Notables will have a multi-value list of risk_message hashes which we can perform an additional truth table check with this logic:
+Now our Risk Notables will have a multi-value list of risk_message hashes which we can perform an additional truth table check by inserting this logic:
 
 ```
 ...
