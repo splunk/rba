@@ -3,13 +3,13 @@
 Because Risk Notables look at a period of time, it is common for a risk_object to keep creating notables as additional (and even duplicate) events roll in, as well as when events fall off as the time period moves forward. It is difficult to get around this with throttling, so we'll be using a Saved Search to store each Risk Notable's risk events and analyst's determinations as a cross-reference for new notables and decide whether to create a new alert.
 
 ### KEEP IN MIND
-Edits to the Incident Review - Main search *may* be replaced on updates to Enterprise Security; requiring you to make this minor edit again to regain this functionality. Ensure you have a step in your relevant process to check this search after an update.
+Edits to the **Incident Review - Main** search ***may*** be replaced on updates to Enterprise Security; requiring you to make this minor edit again to regain this functionality. Ensure you have a step in your relevant process to check this search after an update.
 
 ## Extra Credit
 
 If you utilize [risk_info](https://github.com/splunk/rba/blob/main/searches/risk_info_event_detail.md) and utilize a short and sweet risk_message, this allows risk_message to become another level of granularity for your truth table. This is especially useful if you are creating risk events from a data source with its own signatures like EDR, IDS, or DLP. Because the initial truth table only looks at score and correlation rule, if you have one correlation rule importing numerous signatures, you may want to still alert when a new signature within that source fires.
 
-First, we'll create a new Calculated Field from risk_message in our Risk Datamodel called risk_hash with eval's md5() function, which bypasses the need to deal with special characters or other strangeness that might be in that field. If you haven't done this before - no worries - you just have to go to Settings -> Data Models -> Risk Data Model -> Edit -> Edit Acceleration and turn this off. Afterwards, you can now Create New -> Eval Expression and do this:
+First, we'll create a new Calculated Field from risk_message in our Risk Datamodel called risk_hash with eval's md5() function, which bypasses the need to deal with special characters or other strangeness that might be in that field. If you haven't done this before - no worries - you just have to go to *Settings -> Data Models -> Risk Data Model -> Edit -> Edit Acceleration* and turn this off. Afterwards, you can now *Create New -> Eval Expression* and do this:
 
 Image1
 
