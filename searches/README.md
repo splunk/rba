@@ -12,7 +12,7 @@ This SPL for your Risk Score Risk Incident Rules ensures that a single correlati
 This is all of the handy SPL contained in the [Essential Guide to Risk Based Alerting](https://www.splunk.com/en_us/resources/the-essential-guide-to-risk-based-alerting.html); includes searches for finding noise, reducing noisy notables, and tuning risk rules.
 
 ## [risk_info_event_detail.md](https://github.com/splunk/rba/blob/main/searches/risk_info_event_detail.md)
-This is one of my favorite additions to RBA; adding this macro to your risk rules creates a field called risk_info containing all of the useful fields your analyst might use for analysis which you can add to your Risk Datamodel. It's in JSON formatting which allows easy manipulation in SPL and excellent material for dashboards and unique drilldowns per field.
+This is one of my favorite additions to RBA; adding this macro to your risk rules creates a field called risk_info (which you can add to your Risk Datamodel) containing all of the useful fields your analyst might use for analysis. It's in JSON formatting which allows easy manipulation in SPL and excellent material for dashboards and unique drilldowns per field.
 
 ADDITIONALLY, this frees risk_message to be used as a short and sweet summary rather than where you store all of the event detail. This lets Risk Notables tell a high level overview of events via risk_message, and is also handy to throttle or deduplicate by.
 
