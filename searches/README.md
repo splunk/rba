@@ -3,7 +3,7 @@
 These are some SPL techniques to get the most out of RBA by adding new features to your implementation or handling a common issue.
 
 ## [asset_and_identity_rir_logic.md](https://github.com/splunk/rba/blob/main/searches/asset_and_identity_rir_logic.md)
-Adding this SPL into your Risk Incident Rules normalizes your risk object to a unique key in the Asset & Identity Framework; the primary advantage of this is to throttle on this key and prevent a Risk Incident Rule from firing on both a system and user that represent the same risk.
+Adding this SPL into your Risk Incident Rules normalizes your risk object to a unique key in the Asset & Identity Framework; the primary advantage of this is throttling to prevent a Risk Incident Rule from firing on both a system and user that represent the same risk events.
 
 ## [limit_risk_rule_score_stacking.md](https://github.com/splunk/rba/blob/main/searches/limit_risk_rule_score_stacking.md)
 This SPL for your Risk Score Risk Incident Rules ensures that a single correlation search can only contribute risk a total of three times (or whatever you would like). This is handy for reducing rapidly stacking risk which is common early in the RBA maturation process.
