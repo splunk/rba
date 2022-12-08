@@ -10,7 +10,48 @@ This method is described in [Stuart McIntosh's 2019 .conf Talk](https://conf.spl
 
 ![picture of relevant lookup](https://github.com/splunk/rba/blob/main/searches/assets/truth_table.png)
 
-Then we'll create a Saved Search which runs relatively frequently to store notable data and statuses.
+Then we'll create a Saved Search which runs relatively frequently to store notable data and statuses. Head to *Settings -> Searches, reports, and alerts* then select *New Report* in the top right. Here is a sample to replicate:
+
+![sample report](https://github.com/splunk/rba/blob/main/searches/assets/dedup_search.png)
+
+With this SPL:
+
+```
+index=notable eventtype=risk_notables
+| eval indexer_guid=replace(_bkt,".*~(.+)","\1"),event_hash=md5(_time._raw),event_id=indexer_guid."@@".index."@@".event_hash
+| fields _time event_hash event_id risk_object risk_score source orig_source
+| eval temp_time=time()+86400 
+| lookup update=true event_time_field=temp_time incident_review_lookup rule_id AS event_id OUTPUT status as new_status
+| lookup update=true correlationsearches_lookup _key as source OUTPUTNEW default_status
+| eval status=case(isnotnull(new_status),new_status,isnotnull(status),status,1==1,default_status)
+| fields - temp_time,new_status,default_status
+| eval temp_status=if(isnull(status),-1,status) 
+| lookup update=true reviewstatuses_lookup _key as temp_status OUTPUT status,label as status_label
+| fields - temp_status 
+| eval sources = if(isnull(sources) , orig_source , sources ) 
+| table _time event_hash risk_object source status_label sources risk_score
+| reverse
+| streamstats current=f window=0 latest(event_hash) as previous_event_hash values(*) as previous_* by risk_object
+| eval previousNotable=if(isnotnull(previous_event_hash) , "T" , "F" )
+| fillnull value="unknown" previous_event_hash previous_status_label previous_sources previous_risk_score
+| eval matchScore = if( risk_score != previous_risk_score , "F" , "T" ) 
+| eval previousStatus = case( match(previous_status_label, "(Closed)") , "nonmalicious" , match(previous_status_label, "(New|Resolved)") , "malicious" , true() , "F" )
+| mvexpand sources
+| eval matchRR = if(sources != previous_sources , "F", "T")
+| stats  dc(sources) as dcSources dc(matchRR) as sourceCheckFlag values(*) as * by _time risk_object event_hash
+| eval matchRR = if(sourceCheckFlag > 1 , "F" , matchRR )
+| lookup RIR-Truth-Table.csv previousNotable previousStatus matchRR matchScore OUTPUT alert
+| table _time risk_object source risk_score event_hash dcSources alert previousNotable previousStatus matchRR matchScore
+| outputlookup RIR-Deduplicate.csv
+```
+
+In the SPL for *previousStatus* above, I chose to use 
+
+Now find the search in this menu, click Edit -> Edit Schedule, and try these settings:
+
+![search scheduling](https://github.com/splunk/rba/blob/main/searches/assets/dedup_schedule.png)
+
+I made this search pretty lean, so running it every three minutes should work pretty well; you probably want to stagger your Risk Incident Rule cron schedules by one minute more than that so they don't fire the same risk_object with the same risk events.
 
 ## Extra Credit
 
