@@ -47,7 +47,7 @@ index=notable eventtype=risk_notables
 
 In the SPL for *previousStatus* above, I used the default ES status label "Closed" as our only nonmalicious status. You'll have to make sure to use status labels which are relevant for your Incident Review settings. "Malicious" is used as the fallback status just in case.
 
-Now find the search in this menu, click Edit -> Edit Schedule, and try these settings:
+Now find the search in this menu, click *Edit -> Edit Schedule* and try these settings:
 
 ![search scheduling](https://github.com/splunk/rba/blob/main/searches/assets/dedup_schedule.png)
 
