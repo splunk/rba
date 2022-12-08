@@ -35,7 +35,7 @@ index=notable eventtype=risk_notables
 | eval previousNotable=if(isnotnull(previous_event_hash) , "T" , "F" )
 | fillnull value="unknown" previous_event_hash previous_status_label previous_sources previous_risk_score
 | eval matchScore = if( risk_score != previous_risk_score , "F" , "T" ) 
-| eval previousStatus = case( match(previous_status_label, "(Closed)") , "nonmalicious" , match(previous_status_label, "(New|Resolved)") , "malicious" , true() , "F" )
+| eval previousStatus = case( match(previous_status_label, "(Closed)") , "nonmalicious" , match(previous_status_label, "(New|Resolved)") , "malicious" , true() , "malicious" )
 | mvexpand sources
 | eval matchRR = if(sources != previous_sources , "F", "T")
 | stats  dc(sources) as dcSources dc(matchRR) as sourceCheckFlag values(*) as * by _time risk_object event_hash
@@ -45,13 +45,31 @@ index=notable eventtype=risk_notables
 | outputlookup RIR-Deduplicate.csv
 ```
 
-In the SPL for *previousStatus* above, I chose to use 
+In the SPL for *previousStatus* above, I used the default ES status label "Closed" as our only nonmalicious status. You'll have to make sure to use status labels which are relevant for your Incident Review settings. "Malicious" is used as the fallback status just in case.
 
 Now find the search in this menu, click Edit -> Edit Schedule, and try these settings:
 
 ![search scheduling](https://github.com/splunk/rba/blob/main/searches/assets/dedup_schedule.png)
 
 I made this search pretty lean, so running it every three minutes should work pretty well; you probably want to stagger your Risk Incident Rule cron schedules by one minute more than that so they don't fire the same risk_object with the same risk events.
+
+Our last step is to ensure that the Incident Review panel doesn't show us notables which we've found a match to our truth table which doesn't make sense to alert on. In the *Searches, reports, alerts* page, find the search **Incident Review - Main** and click Edit -> Edit Search. By default it looks like this:
+
+![old incident review search](https://github.com/splunk/rba/blob/main/searches/assets/dedup_ir_old.png)
+
+And we're just inserting this line:
+
+```
+lookup RIR-Deduplicate.csv _time risk_object source OUTPUTNEW alert
+```
+
+After the initial search command, like so:
+
+![new incident review search](https://github.com/splunk/rba/blob/main/searches/assets/dedup_ir_new2.png)
+
+You should now have a significant reduction in duplicate notables!
+
+If something isn't working, make sure that the Saved Search is correctly outputting a lookup (which should have Global permissions), and ensure if you `| inputlookup RIR-Deduplicate.csv` you see all of the fields being returned as expected. If Incident Review is not working, something is wrong with the lookup or your edit to that search.
 
 ## Extra Credit
 
@@ -80,7 +98,7 @@ Now our Risk Notables will have a multi-value list of risk_message hashes. We mu
 | eval previousNotable=if(isnotnull(previous_event_hash) , "T" , "F" )
 | fillnull value="unknown" previous_event_hash previous_status_label previous_sources previous_risk_score previous_risk_hashes 
 | eval matchScore = if( risk_score != previous_risk_score , "F" , "T" ) 
-| eval previousStatus = case( like(previous_status_label, "%Closed%") , "nonmalicious" , like(previous_status_label, "%Incident%") , "malicious" , true() , "F" )
+| eval previousStatus = case( match(previous_status_label, "(Closed)") , "nonmalicious" , match(previous_status_label, "(New|Resolved)") , "malicious" , true() , "malicious" )
 | mvexpand risk_hashes
 | eval matchHashes= if(risk_hashes != previous_risk_hashes , "F" , "T" )
 | stats dc(matchHashes) as hashCheckFlag values(*) as * by _time risk_object event_hash 
