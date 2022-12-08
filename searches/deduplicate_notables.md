@@ -45,15 +45,15 @@ index=notable eventtype=risk_notables
 | outputlookup RIR-Deduplicate.csv
 ```
 
-In the SPL for *previousStatus* above, I used the default ES status label "Closed" as our only nonmalicious status. You'll have to make sure to use status labels which are relevant for your Incident Review settings. "Malicious" is used as the fallback status just in case.
+In the SPL for *previousStatus* above, I used the default ES status label "Closed" as our only nonmalicious status. You'll have to make sure to use status labels which are relevant for your Incident Review settings. "Malicious" is used as the fallback status just in case, but you may want to differentiate "New" or unmatched statuses as something else for audit purposes; just make sure to create relevant matches in your truth table (I recommend copying the alert column from malicious events).
 
 Now find the search in this menu, click *Edit -> Edit Schedule* and try these settings:
 
 ![search scheduling](https://github.com/splunk/rba/blob/main/searches/assets/dedup_schedule.png)
 
-I made this search pretty lean, so running it every three minutes should work pretty well; you probably want to stagger your Risk Incident Rule cron schedules by one minute more than that so they don't fire the same risk_object with the same risk events.
+I made this search pretty lean, so running it every three minutes should work pretty well; I also decided to only look back seven days as this lookup could balloon in size and cause bundle replication issues. You probably want to stagger your Risk Incident Rule cron schedules by one minute more than this one so they don't fire on the same risk_object with the same risk events.
 
-Our last step is to ensure that the Incident Review panel doesn't show us notables which we've found a match to our truth table which doesn't make sense to alert on. In the *Searches, reports, alerts* page, find the search **Incident Review - Main** and click Edit -> Edit Search. By default it looks like this:
+Our last step is to ensure that the Incident Review panel doesn't show us notables when we've found a match to our truth table which doesn't make sense to alert on. In the *Searches, reports, alerts* page, find the search **Incident Review - Main** and click Edit -> Edit Search. By default it looks like this:
 
 ![old incident review search](https://github.com/splunk/rba/blob/main/searches/assets/dedup_ir_old.png)
 
@@ -67,7 +67,7 @@ After the initial search command, like so:
 
 ![new incident review search](https://github.com/splunk/rba/blob/main/searches/assets/dedup_ir_new2.png)
 
-You should now have a significant reduction in duplicate notables!
+Congratulations! You should now have a significant reduction in duplicate notables.
 
 If something isn't working, make sure that the Saved Search is correctly outputting a lookup (which should have Global permissions), and ensure if you `| inputlookup RIR-Deduplicate.csv` you see all of the fields being returned as expected. If Incident Review is not working, something is wrong with the lookup or your edit to that search.
 
