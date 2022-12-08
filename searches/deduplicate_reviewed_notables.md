@@ -28,7 +28,7 @@ Then we have to add this field into our Risk Incident Rules by adding this line 
 values(All_Risk.risk_hash) as risk_hashes
 ```
 
-Now our Risk Notables will have a multi-value list of risk_message hashes. Update your truth table to include a field called "matchHashes" - I've created a sample truth table [here](https://github.com/splunk/rba/blob/main/searches/assets/RIR-Truth-Table-Hashes.csv), but you must decide what is the proper risk appetite for your organization. Then we'll edit the Saved Search we created above to include the new fields and logic:
+Now our Risk Notables will have a multi-value list of risk_message hashes. We must update our truth table to include a field called "matchHashes" - I've created a sample truth table [here](https://github.com/splunk/rba/blob/main/searches/assets/RIR-Truth-Table-Hashes.csv), but you must decide what is the proper risk appetite for your organization. Then we'll edit the Saved Search we created above to include the new fields and logic:
 
 ```
 ...
