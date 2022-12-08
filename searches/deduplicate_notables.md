@@ -112,4 +112,4 @@ Now our Risk Notables will have a multi-value list of risk_message hashes. We mu
 | outputlookup RIR-Deduplicate.csv
 ```
 
-Now if we add a "matchHashes" column to our truth table, we can introduce some additional granularity.
+Voila! We now ensure that our signature-based risk rule data sources will properly alert if there are interesting new events for that risk object.
