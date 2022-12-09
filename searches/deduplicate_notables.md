@@ -60,7 +60,7 @@ Our last step is to ensure that the Incident Review panel doesn't show us notabl
 And we're just inserting this line:
 
 ```
-lookup RIR-Deduplicate.csv _time risk_object source OUTPUTNEW alert | search alert="no"
+lookup RIR-Deduplicate.csv _time risk_object source OUTPUTNEW alert | search NOT alert="no"
 ```
 
 After the initial search command, like so:
