@@ -1,0 +1,24 @@
+name: Deploy Documentation
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "includes/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v3
+        with:
+          path: docs/requirements.txt
+      - run: mkdocs gh-deploy --force

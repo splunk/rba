@@ -1,8 +1,8 @@
-## Cap Contributing Risk Scores by Source
+# Cap Contributing Risk Scores by Source
 
-This logic will limit the number of times risk rules can contribute to the total score of a risk object:
+This logic will limit the number of times risk rules can contribute to the total score of a risk object.
 
-```
+```shell linenums="1"
 | tstats summariesonly=true sum(All_Risk.calculated_risk_score) as summed_risk_score max(All_Risk.calculated_risk_score) as single_risk_score dc(source) as source_count count
  FROM datamodel=Risk.All_Risk
  WHERE All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*")
@@ -14,4 +14,7 @@ This logic will limit the number of times risk rules can contribute to the total
 ...
 ```
 
-To cap the risk score contribution of a single source by 3x the highest score from that source. You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS. Thanks David Dorsey!
+!!! note
+    To cap the risk score contribution of a single source by 3x the highest score from that source. You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS.
+
+    Thanks David Dorsey!

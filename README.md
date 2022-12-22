@@ -1,12 +1,15 @@
 # rba all day
+
+[![Docs](https://github.com/splunk/rba/actions/workflows/docs.yml/badge.svg)](#placeholder)
+
 Welcome to the wonderful world of Risk-Based Alerting!
 
-RBA is Splunk's method to aggregate low-fidelity security events as interesting observations tagged with security metadata to create high-fidelity, low-volume alerts. 
+RBA is Splunk's method to aggregate low-fidelity security events as interesting observations tagged with security metadata to create high-fidelity, low-volume alerts.
 
 ## searches
 This folder contains useful SPL from the RBA community for working with risk events.
 
-## dashboards 
+## dashboards
 This folder contains Simple XML or JSON for Splunk dashboards to streamline risk analysis.
 
 ## risk rules
