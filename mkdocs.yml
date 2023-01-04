@@ -1,0 +1,111 @@
+site_name: Splunk RBA
+site_description: >-
+  RBA is Splunk's method to aggregate low-fidelity security events as interesting observations tagged with security metadata to create high-fidelity, low-volume alerts.
+edit_uri: ""
+repo_url: https://github.com/splunk/rba
+repo_name: splunk/rba
+
+plugins:
+  - git-revision-date-localized:
+      type: date
+      fallback_to_build_date: true
+      enable_creation_date: true
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+      skip_classes:
+        - custom-skip-class-name
+      auto_caption: true
+      caption_position: bottom
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+  - search
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - footnotes
+  - meta
+  - md_in_html
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/rba_community.png
+  favicon: assets/rba_community.png
+  features:
+    # - header.autohide
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.integrate
+    - toc.follow
+    - navigation.tracking
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/splunk/rba
+
+nav:
+  - Home: index.md
+  - Searches:
+      - searches/index.md
+      - Integrate A&I into RiRs: searches/asset_and_identity_rir_logic.md
+      - Deduplicate Notables: searches/deduplicate_notables.md
+      - Limit score stacking: searches/limit_risk_rule_score_stacking.md
+      - Essential RBA searches: searches/risk_guide_searches.md
+      - Risk info field: searches/risk_info_event_detail.md
+      - Chaining behaviors: searches/this_then_that_alerts.md
+  - Dashboards:
+      - dashboards/index.md
+      - Att&CK Matrix Risk: dashboards/attack_matrix_risk.md
+      - Attribution Analytics: dashboards/audit_attribution_analytics.md
+      - RBA Data Source Review: dashboards/rba_data_source_overview.md
+      - Risk Attributions: dashboards/risk_attributions.md
+      - Risk Investigation: dashboards/risk_investigation.md
+      - Risk Notable Analysis: dashboards/risk_notable_analysis_dashboard.md
+  - Contributing:
+      - Contributing Guidelines: contributing/index.md
