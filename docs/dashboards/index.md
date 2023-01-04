@@ -12,6 +12,12 @@ Portrays risk in your environment through the lense of RBA and the MTRE ATT&CK f
 
 Helpful for tuning new detections.
 
+## [RBA Data Source Review](./rba_data_source_overview.md)
+
+<small>:simple-github: [rba_data_source_overview.xml](https://github.com/splunk/rba/blob/main/dashboards/rba_data_source_overview.xml){ target="_blank" }</small>
+
+This helps you to better what data sources you are using in RBA and see gaps in your coverage.
+
 ## [Risk Attributions (Investigative View)](./risk_attributions.md)
 
 <small>:simple-github: [risk_attributions.xml](https://github.com/splunk/rba/blob/main/dashboards/risk_attributions.xml){ target="_blank" }</small>
