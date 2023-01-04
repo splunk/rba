@@ -1,0 +1,341 @@
+<form theme="dark">
+  <label>RBA Data Source Review</label>
+  <search id="basesearch">
+    <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches
+| where match('action.correlationsearch.enabled', "1|[Tt]|[Tt][Rr][Uu][Ee]")
+| where disabled=0
+| eval actions=split(actions, ",")
+| rename  action.risk.param._risk as risk_param action.risk.param._risk_object_type as risk_object_type0 action.risk.param._risk_object as risk_object0 action.risk.param._risk_score as risk_score0
+| rex field=search "index=(?&lt;index&gt;.+?)\s"
+| rex field=search "sourcetype=(?&lt;sourcetype&gt;.+?)\s"
+| rex field=search "datamodel:?\W?(?&lt;datamodel&gt;\w+)"
+| rex field=search "mitre_tactic=(?&lt;mitre_tactic&gt;.+)"
+| rex field=search "mitre_technique=(?&lt;mitre_technique&gt;.+)"
+| eval index=replace(index,"\"","")
+| eval data_source=coalesce(index, datamodel)
+         </query>
+    <earliest>-1h</earliest>
+    <latest>now</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>Risk Rules</title>
+      <single>
+        <title>Detections that populate the Risk index</title>
+        <search base="basesearch">
+          <query>|  stats  dc(title) as Risk_Detections</query>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051", "0x0877a6", "0xf8be34", "0xf1813f", "0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Data Source Index Overview</title>
+      <chart>
+        <title>Data Sources that are used in Risk Rules</title>
+        <search base="basesearch">
+          <query>| stats count by data_source</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="charting.seriesColors">[#0091DA,#78BE20,#7F35B2,#00C1D5,#717074,#FFFFFF]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Technique Overview</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats count by mitre_technique</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="charting.seriesColors">[#0091DA,#78BE20,#7F35B2,#00C1D5,#717074,#FFFFFF]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Tactic Overview</title>
+      <chart>
+        <search base="basesearch">
+          <query>| stats count by mitre_tactic</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="charting.seriesColors">[#0091DA,#78BE20,#7F35B2,#00C1D5,#717074,#FFFFFF]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Rules by Data Source</title>
+      <table>
+        <search base="basesearch">
+          <query>| stats values(title) as Risk_Rule, values(mitre_tactic) as mitre_tactic values(mitre_technique) as mitre_technique by data_source</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Risk Data Source Event Overview</title>
+      <table>
+        <search base="basesearch">
+          <query>
+| eval source=title
+
+| join type=left source
+ [search index=risk source=* 
+ | stats count as total_events earliest(_time) as first_seen last(_time) as last_seen by source ]
+
+| table title mitre_technique mitre_tactic first_seen last_seen total_events
+
+| fieldformat first_seen=strftime(first_seen, "%c")
+| fieldformat last_seen=strftime(last_seen, "%c")
+| fillnull total_events value="No Events Found"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="total_events">
+          <colorPalette type="map">{"No Events Found":#AF575A}</colorPalette>
+        </format>
+        <format type="color" field="last_seen">
+          <colorPalette type="map"></colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Rules</title>
+      <input type="dropdown" token="data_token" searchWhenChanged="true">
+        <label>Data Source</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>data_source</fieldForLabel>
+        <fieldForValue>data_source</fieldForValue>
+        <search base="basesearch">
+          <query>
+| table data_source
+| dedup data_source
+| sort data_source</query>
+        </search>
+      </input>
+      <input type="dropdown" token="mitre_tactic_token" searchWhenChanged="true">
+        <label>Tactic</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>mitre_tactic</fieldForLabel>
+        <fieldForValue>mitre_tactic</fieldForValue>
+        <search base="basesearch">
+          <query>
+| table mitre_tactic
+| dedup mitre_tactic
+| sort mitre_tactic</query>
+        </search>
+      </input>
+      <input type="dropdown" token="mitre_technique_token" searchWhenChanged="true">
+        <label>Technique</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>mitre_technique</fieldForLabel>
+        <fieldForValue>mitre_technique</fieldForValue>
+        <search base="basesearch">
+          <query>
+| table mitre_technique
+| dedup mitre_technique
+| sort mitre_technique</query>
+        </search>
+      </input>
+      <input type="dropdown" token="risk_object" searchWhenChanged="true">
+        <label>Risk Object</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>risk_object</fieldForLabel>
+        <fieldForValue>risk_object</fieldForValue>
+        <search base="basesearch">
+          <query>
+| rex  field=risk_param max_match=0 "\"risk_object_field\":\"(?&lt;risk_object&gt;\w+)"
+| rex  field=risk_param max_match=0 "\"risk_object_type\":\"(?&lt;risk_object_type&gt;\w+)"
+| rex  field=risk_param max_match=0 "\"risk_score\":(?&lt;risk_score&gt;\d+)"
+
+|table risk_object
+|dedup risk_object
+|sort risk_object</query>
+        </search>
+      </input>
+      <table>
+        <search base="basesearch">
+          <query>
+| rename  action.risk.param._risk as risk_param action.risk.param._risk_object_type as risk_object_type0 action.risk.param._risk_object as risk_object0 action.risk.param._risk_score as risk_score0
+| rex  field=risk_param max_match=0 "\"risk_object_field\":\"(?&lt;risk_object&gt;\w+)"
+| rex  field=risk_param max_match=0 "\"risk_object_type\":\"(?&lt;risk_object_type&gt;\w+)"
+| rex  field=risk_param max_match=0 "\"risk_score\":(?&lt;risk_score&gt;\d+)"
+
+| search actions=risk
+| eval risk_object=coalesce(risk_object, risk_object0)
+| eval risk_object_type=coalesce(risk_object_type, risk_object_type0)
+| eval risk_score=coalesce(risk_score, risk_score0)
+| eval data_source=coalesce(index, datamodel)
+
+| table title actions risk_param risk_object risk_object_type risk_score search index sourcetype datamodel mitre_technique mitre_tactic data_source
+|fillnull value="nothing listed"
+
+| search data_source=$data_token$ AND mitre_tactic=$mitre_tactic_token$ AND mitre_technique=$mitre_technique_token$ AND risk_object=$risk_object$</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Index Not Being Used by Program</title>
+      <table>
+        <search>
+          <query>| tstats count where index=* by index, sourcetype
+| search NOT [|inputlookup risk_data_index.csv | fields index]
+| stats values(sourcetype) as sourcetype by index</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
