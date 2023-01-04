@@ -1,6 +1,6 @@
 # rba all day
 
-[![Docs](https://github.com/splunk/rba/actions/workflows/docs.yml/badge.svg)](#placeholder)
+[![Docs](https://github.com/splunk/rba/actions/workflows/docs.yml/badge.svg)](https://splunk.github.io/rba/)
 
 Welcome to the wonderful world of Risk-Based Alerting!
 
