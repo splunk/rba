@@ -41,6 +41,6 @@ Splunk's Threat Research Team has an incredible library of over 1000 detections 
 
 </div>
 
-## [Contributing](contributing/)
+## [Contributing](contributing/contributing-guidelines/)
 
 Want to contribute? See our contributing guidelines.
