@@ -1,7 +1,7 @@
 site_name: Splunk RBA
 site_description: >-
   RBA is Splunk's method to aggregate low-fidelity security events as interesting observations tagged with security metadata to create high-fidelity, low-volume alerts.
-edit_uri: ""
+edit_uri: edit/main/docs/
 repo_url: https://github.com/splunk/rba
 repo_name: splunk/rba
 
@@ -25,17 +25,20 @@ plugins:
       caption_position: bottom
   - minify:
       minify_html: true
-      minify_js: true
-      minify_css: true
   - search
 
 markdown_extensions:
   - abbr
   - admonition
   - attr_list
+  - def_list
   - footnotes
-  - meta
   - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
   - pymdownx.critic
   - pymdownx.details
   - pymdownx.emoji:
@@ -44,12 +47,18 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
   - pymdownx.snippets:
       auto_append:
         - includes/abbreviations.md
-  - pymdownx.superfences
-  - toc:
-      permalink: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
 
 theme:
   name: material
@@ -59,6 +68,7 @@ theme:
   favicon: assets/rba_community.png
   features:
     # - header.autohide
+    - content.action.edit
     - navigation.indexes
     - navigation.instant
     - navigation.tabs
