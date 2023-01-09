@@ -64,8 +64,8 @@ theme:
   name: material
   icon:
     repo: fontawesome/brands/github
-  logo: assets/rba_community.png
-  favicon: assets/rba_community.png
+  logo: assets/rba_community_small.png
+  favicon: assets/rba_community_small.png
   features:
     # - header.autohide
     - content.action.edit
