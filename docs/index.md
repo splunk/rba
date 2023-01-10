@@ -42,4 +42,10 @@ Whether you’re new to RBA and ES or a seasoned pro, The RBA Community has some
 
 ## [Contributing](contributing/contributing-guidelines/)
 
-Want to contribute? See our contributing guidelines.
+Want to contribute? See our [contributing guidelines](contributing/contributing-guidelines/).
+
+## Discussion/FAQ
+
+See discussions and frequently asked questions on our GitHub Discussions board.
+
+[Visit Discussion Board :octicons-link-external-16:](https://github.com/splunk/rba/discussions "Visit Discussion Board"){ .md-button .md-button--primary target="_blank" }
