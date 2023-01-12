@@ -109,6 +109,7 @@ nav:
       - Essential RBA searches: searches/risk_guide_searches.md
       - Risk info field: searches/risk_info_event_detail.md
       - Chaining behaviors: searches/this_then_that_alerts.md
+      - Fix Urgency for Risk Notables: searches/fix_urgency.md
   - Dashboards:
       - dashboards/index.md
       - Att&CK Matrix Risk: dashboards/attack_matrix_risk.md
