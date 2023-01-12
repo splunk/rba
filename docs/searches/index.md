@@ -27,3 +27,7 @@ ADDITIONALLY, this frees risk_message to be used as a short and sweet summary ra
 ## [Chaining behaviors](./this_then_that_alerts.md)
 
 This is some simple SPL to organize risk events by risk_object and create risk rules which look for a specific sequence of events or chain of behaviors.
+
+## [Fix Urgency for Risk Notables](./fix_urgency.md)
+
+By default, a risk object's priority is not taken into account for the Urgency of a Notable event, even if it is configured in the A&I database. 
