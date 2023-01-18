@@ -20,7 +20,7 @@ plugins:
       zoomable: true
       draggable: true
       skip_classes:
-        - custom-skip-class-name
+        - github-avatar
       auto_caption: true
       caption_position: bottom
   - minify:
@@ -94,6 +94,9 @@ theme:
         icon: material/weather-night
         name: Switch to light mode
 
+extra_css:
+  - stylesheets/extra.css
+
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -119,3 +122,4 @@ nav:
       - Risk Notable Analysis: dashboards/risk_notable_analysis_dashboard.md
   - Contributing:
       - Contributing Guidelines: contributing/contributing-guidelines.md
+      - Contributors: contributing/contributors.md
