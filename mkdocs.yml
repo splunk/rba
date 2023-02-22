@@ -111,7 +111,7 @@ nav:
       - Chaining behaviors: searches/this_then_that_alerts.md
   - Dashboards:
       - dashboards/index.md
-      - Att&CK Matrix Risk: dashboards/attack_matrix_risk.md
+      - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md
       - Attribution Analytics: dashboards/audit_attribution_analytics.md
       - RBA Data Source Review: dashboards/rba_data_source_overview.md
       - Risk Attributions: dashboards/risk_attributions.md

@@ -1,6 +1,6 @@
 # Dashboards
 
-## [Att&CK Matrix Risk (Business View)](./attack_matrix_risk.md)
+## [ATT&CK Matrix Risk (Business View)](./attack_matrix_risk.md)
 
 <small>:simple-github: [attack_matrix_risk.xml](https://github.com/splunk/rba/blob/main/dashboards/attack_matrix_risk.xml){ target="_blank" }</small>
 
