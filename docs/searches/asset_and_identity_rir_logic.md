@@ -1,5 +1,8 @@
 # Integrate Asset & Identity Information into Risk Incident Rules
 
+!!! note
+    This feature has been added to ES 7.1, utilizing the `normalized_risk_object` field. This is also utilized for throttling in the default Risk Incident Rules which prevents notables from firing regularly on the same identity with different users or same asset with different hosts if A&I is configured.
+
 This was a comment on this excellent [Splunk Idea](https://ideas.splunk.com/ideas/ESSID-I-253){ target=_blank } to `lower()` or `upper()` the risk_object in Risk Incident Rules, which goes one step further by integrating A&I information:
 
 ```shell linenums="1"
