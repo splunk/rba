@@ -8,7 +8,7 @@ You may want to keep risk_message relatively brief as a sort of high-level overv
 eval risk_info = "{\"risk_info\":{"
 | foreach $fields$
     [
-    ``` ¨Preparing json array if FIELD is multivalue, otherwise simple json value```
+    ```Preparing json array if FIELD is multivalue, otherwise simple json value```
     | eval json=if(mvcount(<<FIELD>>)>1,mv_to_json_array(mvdedup(<<FIELD>>)),"\"".<<FIELD>>."\"") 
     | eval <<FIELD>>=if(isnull(<<FIELD>>), "unknown", <<FIELD>>), risk_info=risk_info."\""."<<FIELD>>"."\": ".json.","
     ]
@@ -16,8 +16,8 @@ eval risk_info = "{\"risk_info\":{"
 | fields - json
 ```
 
-!!! info "Thanks!"
-    Much thanks to RedTigR on the RBA Slack for providing the multi-value friendly version of this macro.
+!!! tip ""
+    <span style="font-size: 1.5em">:raised_hands:  </span> Many thanks to [RedTigR](/contributing/contributors) on the RBA Slack for providing the multi-value friendly version of this macro.
 
 Utilizing the macro like `risk_info("field1,field2,field3,etc")` to give us a JSON formatted field with any of the fields we like.
 
