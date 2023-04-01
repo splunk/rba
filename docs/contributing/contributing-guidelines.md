@@ -6,6 +6,7 @@ A GitHub account is required to create a pull request to submit new content. If 
 
 - Submit a **feature request** (issue) at [https://github.com/splunk/rba/issues](https://github.com/splunk/rba/issues){ target=_blank }.
 - Create a new discussion at [https://github.com/splunk/rba/discussions](https://github.com/splunk/rba/discussions){ target=_blank }.
+- Don't have a GitHub account? Reach out to us on [Slack](https://outpost-security.com/slack){ target=_blank }!
 
 ## How to Contribute
 
