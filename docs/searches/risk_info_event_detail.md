@@ -8,9 +8,10 @@ You may want to keep risk_message relatively brief as a sort of high-level overv
 eval risk_info = "{\"risk_info\":{"
 | foreach $fields$
     [
+    | eval <<FIELD>>=if(isnull(<<FIELD>>), "unknown", <<FIELD>>)
     ```Preparing json array if FIELD is multivalue, otherwise simple json value```
     | eval json=if(mvcount(<<FIELD>>)>1,mv_to_json_array(mvdedup(<<FIELD>>)),"\"".<<FIELD>>."\"") 
-    | eval <<FIELD>>=if(isnull(<<FIELD>>), "unknown", <<FIELD>>), risk_info=risk_info."\""."<<FIELD>>"."\": ".json.","
+    | eval risk_info=risk_info."\""."<<FIELD>>"."\": ".json.","
     ]
 | rex mode=sed field=risk_info "s/,$/}}/"
 | fields - json
@@ -26,7 +27,7 @@ And then if we wanted to break this out in a dashboard we could use `spath` to b
 !!! example
 
     ```shell
-    | rex field=risk_info max_match=100 "(?<risk_info>\"[a-zA-Z_]+\"\:(|\s)\"[^\"]+\")[\,\}]"
+    | rex field=risk_info max_match=100 "(?<risk_info2>\"\w+\":\s*((?:(?<!\\\)\"[^\"]*\"|\[[^\]]*\]))(?=,|\s*}))"
     ```
 
 To break out each field as a multi-value on their own line in the same column. It looks really pretty, and you can even use `$click.value2$` to determine exactly which MV field was clicked and utilize different drilldowns per field, for example.
