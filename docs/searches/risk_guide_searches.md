@@ -185,3 +185,8 @@ BY All_Risk.risk_object,All_Risk.risk_object_type
 ```
 
 For tuning Risk Incident Rules that don't rely on an accretive score to alert, but still need a lever to tweak noisy sources. In our example lookup, we would include a value between 0 and 1 for each noisy source; IE 0.75 to only count a rule as 1/4 of a standard weight, 0.5 to only count as 1/2, etc.
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }

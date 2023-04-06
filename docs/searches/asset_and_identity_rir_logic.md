@@ -63,3 +63,8 @@ Modify existing RIR drilldowns to include the macro similar to below.
 | `get_correlations`  
 | rename annotations.mitre_attack.mitre_tactic_id as mitre_tactic_id, annotations.mitre_attack.mitre_tactic as mitre_tactic, annotations.mitre_attack.mitre_technique_id as mitre_technique_id, annotations.mitre_attack.mitre_technique as mitre_technique
 ```
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }
