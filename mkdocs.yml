@@ -115,6 +115,7 @@ nav:
       - Essential RBA searches: searches/risk_guide_searches.md
       - Risk info field: searches/risk_info_event_detail.md
       - Chaining behaviors: searches/this_then_that_alerts.md
+      - Naming SYSTEM/Unknown/Computer Accounts: searches/naming_system_unknown_computer_accounts.md
   - Dashboards:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md

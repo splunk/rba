@@ -13,3 +13,5 @@
 [![hettervik](https://avatars.githubusercontent.com/u/30823688?v=4){ class="github-avatar" } `hettervik`](https://github.com/hettervik "Follow hettervik"){ target="_blank" }
 
 [![RedTigR](https://ca.slack-edge.com/TLRQHBNKD-UUHMZ9CL8-0e1195c46b5b-512){ class="github-avatar" } `RedTigR`](https://outpost-frontline.slack.com/team/UUHMZ9CL8 "Follow RedTigR"){ target="_blank" }
+
+[![Dean Luxton](https://media.licdn.com/dms/image/D5603AQEwm5QYVmn-Dw/profile-displayphoto-shrink_800_800/0/1664578674505?e=2147483647&v=beta&t=mcDIkVlKDgC2bhb0GdDhJNOHuN04esAaGYO0-NjyM8c){ class="github-avatar" } `Dean Luxton`](https://au.linkedin.com/in/dean-luxton-28494780 "Follow Dean Luxton"){ target="_blank" }
