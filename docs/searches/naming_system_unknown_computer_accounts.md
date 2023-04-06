@@ -1,11 +1,15 @@
 # Naming SYSTEM / Unknown / Computer Accounts - The SEAL Method (credit: Dean Luxton)
 
-Computer accounts are used by Active Directory to authenticate machines to the domain, and RBA detections may find behavior in a log where the user account is simply listed as "SYSTEM" or even left blank because it is the computer account. This method renames the account to distinguish it from the noise of "SYSTEM" or "unknown" or it can be tied into the Asset & Identify framework and contribute to detections on user risk objects.
+Computer accounts are used by Active Directory to authenticate machines to the domain, and RBA detections may find behavior in a log where the user account is simply listed as "SYSTEM" or even left blank because it is the computer account. This method renames the account to distinguish it as **host$** from the noise of "SYSTEM" or "unknown". It can also be tied into the Asset & Identify framework and contribute to detections on user risk objects.
 
 **Settings > Fields > Calculated Fields > Add New**
+
 **Source**: XmlWinEventLog:Security 
+
 **Source**: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
+
 **Name**: user
+
 **Eval Expression**: if(user="SYSTEM" OR user="-",'host'+"$",'user')
 
 ## Extra Credit
