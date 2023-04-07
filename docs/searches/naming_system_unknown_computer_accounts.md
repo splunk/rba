@@ -4,7 +4,7 @@ Computer accounts are used by Active Directory to authenticate machines to the d
 
 ## Steps
 
-Navigate to Settings > Fields > Calculated Fields > Add New
+Navigate to **Settings > Fields > Calculated Fields > Add New**
 
 Setting | Value
 ------- | -----
@@ -13,6 +13,16 @@ Setting | Value
 **Name** | `user`
 **Eval Expression** | `if(user="SYSTEM" OR user="-",'host'+"$",'user')`
 
+???+ note
+    We have to be careful with existing order of knowledge objects and calculated fields. The Sysmon TA already has a `user = ""` calculated field, so we can alter that from:
+    
+
+    user = upper(case( NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"), NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")))
+    
+to:
+    
+
+    user = upper(case(match(User,".+\\\SYSTEM"), host."$", NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"), NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")))
 
 ## Extra Credit
 
@@ -27,3 +37,4 @@ Not going to map this entire process due to how different it can be in each envi
     </a>
     <span class="zts-tooltip-text">@Dean Luxton</span>
 </div>
+@StevenD
