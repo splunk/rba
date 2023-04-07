@@ -18,3 +18,8 @@ This logic will limit the number of times risk rules can contribute to the total
     To cap the risk score contribution of a single source by 3x the highest score from that source. You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS.
 
     Thanks David Dorsey!
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }

@@ -8,9 +8,10 @@ You may want to keep risk_message relatively brief as a sort of high-level overv
 eval risk_info = "{\"risk_info\":{"
 | foreach $fields$
     [
+    | eval <<FIELD>>=if(isnull(<<FIELD>>), "unknown", <<FIELD>>)
     ```Preparing json array if FIELD is multivalue, otherwise simple json value```
     | eval json=if(mvcount(<<FIELD>>)>1,mv_to_json_array(mvdedup(<<FIELD>>)),"\"".<<FIELD>>."\"") 
-    | eval <<FIELD>>=if(isnull(<<FIELD>>), "unknown", <<FIELD>>), risk_info=risk_info."\""."<<FIELD>>"."\": ".json.","
+    | eval risk_info=risk_info."\""."<<FIELD>>"."\": ".json.","
     ]
 | rex mode=sed field=risk_info "s/,$/}}/"
 | fields - json
@@ -26,14 +27,12 @@ And then if we wanted to break this out in a dashboard we could use `spath` to b
 !!! example
 
     ```shell
-    | rex field=risk_info max_match=100 "(?<risk_info>\"[a-zA-Z_]+\"\:(|\s)\"[^\"]+\")[\,\}]"
+    | rex field=risk_info max_match=100 "(?<risk_info2>\"\w+\":\s*((?:(?<!\\\)\"[^\"]*\"|\[[^\]]*\]))(?=,|\s*}))"
     ```
 
 To break out each field as a multi-value on their own line in the same column. It looks really pretty, and you can even use `$click.value2$` to determine exactly which MV field was clicked and utilize different drilldowns per field, for example.
 
 ## Extracting existing fields from risk events into risk_info field
-
-<small>@elusive-mesmer</small>
 
 !!! info "Assumption"
     Your risk rules are outputting specific details in addition to the risk fields (e.g. `risk_message`, `risk_object` etc.)
@@ -59,3 +58,10 @@ Breaking down some decisions:
 - `calculated_risk_score` is a [required field](https://docs.splunk.com/Documentation/ES/latest/User/Triagenotableevents#Use_custom_risk_notables_to_identify_threats){ target=_blank } for the drilldown so it displays properly in the Risk Events panel.
 - If you are providing _time in your risk rules, you could rename `_time` to `observation_time` and `orig_time` to `_time` for a more accurate chronological order of events.
 - The datamodel could be used, but if you wanted accelerated searching via `tstats` you would need to customize it in some way such as including the `_raw` field, which may be costly. Creating a risk_info field with the macro above would be more efficient.
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }
+[![RedTigR](https://ca.slack-edge.com/TLRQHBNKD-UUHMZ9CL8-0e1195c46b5b-512){ class="github-avatar" }](../contributing/contributors.md "Follow RedTigR"){ target="_blank" }
+[![elusive-mesmer](https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow elusive-mesmer"){ target="_blank" }

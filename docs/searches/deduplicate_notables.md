@@ -179,3 +179,8 @@ Next we'll edit the Saved Search we created above to include the new fields and 
 ```
 
 Voila! We now ensure that our signature-based risk rule data sources will properly alert if there are interesting new events for that risk object.
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }

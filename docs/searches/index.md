@@ -27,3 +27,7 @@ ADDITIONALLY, this frees risk_message to be used as a short and sweet summary ra
 ## [Chaining behaviors](./this_then_that_alerts.md)
 
 This is some simple SPL to organize risk events by risk_object and create risk rules which look for a specific sequence of events or chain of behaviors.
+
+## [Naming SYSTEM/Unknown/Computer Accounts](./naming_system_unknown_computer_accounts.md)
+
+Computer accounts are used by Active Directory to authenticate machines to the domain, and RBA detections may find behavior in a log where the user account is simply listed as "SYSTEM" or even left blank because it is the computer account. This method renames the account to distinguish it as host$ from the noise of "SYSTEM" or "unknown". It can also be tied into the Asset & Identify framework and contribute to detections on user risk objects.

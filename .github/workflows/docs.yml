@@ -8,15 +8,22 @@ on:
       - "docs/**"
       - "mkdocs.yml"
       - "includes/**"
-
+permissions:
+  contents: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
+      - uses: actions/cache@v2
+        with:
+          key: ${{ github.ref }}
+          path: .cache
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v3
         with:

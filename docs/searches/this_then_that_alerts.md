@@ -14,3 +14,8 @@ index=risk sourcetype=stash search_name="Search1" OR search_name="Search2"
 ```
 
 The benefit of not doing this in a single search is you still have the individual risk events as useful observations, and then can add more risk when observed together, or tweak risk down for noisy events without "allowlisting" altogether.
+
+---
+<small>Authors</small>
+
+[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }
