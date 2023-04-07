@@ -13,17 +13,17 @@ Setting | Value
 **Name** | `user`
 **Eval Expression** | `if(user="SYSTEM" OR user="-",'host'+"$",'user')`
 
-???+ warning "Conflicting knowledge objects - Sysmon TA"
-    We have to be careful with existing order of knowledge objects and calculated fields. The Sysmon TA already has a `user = ""` calculated field which we can update as follows:
+???+ warning "Conflicting knowledge objects - [Sysmon TA][sysmon-ta]{ target="_blank" }"
+    We have to be careful with existing order of knowledge objects and calculated fields. The [Sysmon TA][sysmon-ta]{ target="_blank" } already has a `user = ""` calculated field which we can update as follows:
     
-    ``` shell title="Existing"
+    ``` shell title="Existing:"
     user = upper(case(
         NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"),
         NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")
         ))
     ```
 
-    ``` shell title="New"
+    ``` shell title="Update to:"
     user = upper(case(
         match(User,".+\\\SYSTEM"), host."$",
         NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"),
@@ -50,3 +50,5 @@ Not going to map this entire process due to how different it can be in each envi
     </a>
     <span class="zts-tooltip-text">@StevenD</span>
 </div>
+
+[sysmon-ta]: https://splunkbase.splunk.com/app/5709
