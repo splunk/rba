@@ -62,6 +62,21 @@ Breaking down some decisions:
 ---
 <small>Authors</small>
 
-[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }
-[![RedTigR](https://ca.slack-edge.com/TLRQHBNKD-UUHMZ9CL8-0e1195c46b5b-512){ class="github-avatar" }](../contributing/contributors.md "Follow RedTigR"){ target="_blank" }
-[![elusive-mesmer](https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow elusive-mesmer"){ target="_blank" }
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
+    </a>
+    <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
+</div>
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="RedTigR">
+        <img class="github-avatar" src="https://ca.slack-edge.com/TLRQHBNKD-UUHMZ9CL8-0e1195c46b5b-512"/>
+    </a>
+    <span class="zts-tooltip-text">@RedTigR</span>
+</div>
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="elusive-mesmer">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar"/>
+    </a>
+    <span class="zts-tooltip-text">@elusive-mesmer</span>
+</div>

@@ -3,3 +3,64 @@
     vertical-align: middle;
     width: 40px;
 }
+
+.md-typeset a.zts-author {
+    transform: scale(1);
+}
+
+a.zts-author:hover {
+    transform: scale(1.1);
+    z-index: 1;
+}
+
+.md-typeset .zts-author {
+    display: inline-block;
+    height: 1.6rem;
+    overflow: hidden;
+    position: relative;
+    transition: color 125ms, transform 125ms;
+    width: 1.6rem;
+}
+
+a.zts-author:focus img,
+.md-typeset a.zts-author:hover img {
+    filter: grayscale(0)
+}
+
+.md-typeset a.zts-author img {
+    filter: grayscale(100%) opacity(75%);
+    transition: filter 125ms;
+}
+
+.md-typeset .zts-author img {
+    border-radius: 100%;
+    display: block;
+}
+
+.zts-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.zts-tooltip .zts-tooltip-text {
+    opacity: 0;
+    width: max-content;
+    background-color: #2e303e;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    top: 110%;
+    left: auto;
+    margin-left: -55px;
+    font-size: .5rem;
+    font-weight: bold;
+    box-shadow: 3px 3px 5px #21222c;
+    transition: opacity 125ms;
+}
+
+.zts-tooltip:hover .zts-tooltip-text {
+    opacity: 1;
+}

@@ -22,4 +22,9 @@ This logic will limit the number of times risk rules can contribute to the total
 ---
 <small>Authors</small>
 
-[![7thdrxn - Haylee Mills](https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar" }](../contributing/contributors.md "Follow 7thdrxn"){ target="_blank" }
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
+    </a>
+    <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
+</div>
