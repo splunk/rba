@@ -21,4 +21,9 @@ Not going to map this entire process due to how different it can be in each envi
 ---
 <small>Authors</small>
 
-[![Dean Luxton](https://media.licdn.com/dms/image/D5603AQEwm5QYVmn-Dw/profile-displayphoto-shrink_800_800/0/1664578674505?e=2147483647&v=beta&t=mcDIkVlKDgC2bhb0GdDhJNOHuN04esAaGYO0-NjyM8c){ class="github-avatar" }](../contributing/contributors.md "Credit: @Dean Luxton")
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="Dean Luxton">
+        <img class="github-avatar" src="../../assets/authors/dean_luxton_linkedin.jpg"/>
+    </a>
+    <span class="zts-tooltip-text">@Dean Luxton</span>
+</div>
