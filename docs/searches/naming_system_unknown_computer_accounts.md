@@ -13,16 +13,23 @@ Setting | Value
 **Name** | `user`
 **Eval Expression** | `if(user="SYSTEM" OR user="-",'host'+"$",'user')`
 
-???+ note
-    We have to be careful with existing order of knowledge objects and calculated fields. The Sysmon TA already has a `user = ""` calculated field, so we can alter that from:
+???+ warning "Conflicting knowledge objects - Sysmon TA"
+    We have to be careful with existing order of knowledge objects and calculated fields. The Sysmon TA already has a `user = ""` calculated field which we can update as follows:
     
+    ``` shell title="Existing"
+    user = upper(case(
+        NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"),
+        NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")
+        ))
+    ```
 
-    user = upper(case( NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"), NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")))
-    
-to:
-    
-
-    user = upper(case(match(User,".+\\\SYSTEM"), host."$", NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"), NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")))
+    ``` shell title="New"
+    user = upper(case(
+        match(User,".+\\\SYSTEM"), host."$",
+        NOT isnull(User) AND NOT User IN ("-"), replace(User, "(.*)\\\(.+)$","\2"),
+        NOT isnull(SourceUser) AND NOT isnull(TargetUser) AND SourceUser==TargetUser, replace(SourceUser, "(.*)\\\(.+)$","\2")
+        ))
+    ```
 
 ## Extra Credit
 
@@ -37,4 +44,9 @@ Not going to map this entire process due to how different it can be in each envi
     </a>
     <span class="zts-tooltip-text">@Dean Luxton</span>
 </div>
-@StevenD
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="StevenD">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/38897662?v=4"/>
+    </a>
+    <span class="zts-tooltip-text">@StevenD</span>
+</div>
