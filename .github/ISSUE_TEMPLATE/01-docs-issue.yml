@@ -18,7 +18,7 @@ body:
     attributes:
       label: Related links
       description: >-
-        Please list all links to the sections of [our documentation](https://splunk.github.io/rba/) that are impacted by the issue you described above. Add screenshots, where applicable. Additionally, list links to any slack conversations and/or [GitHub discussions](https://splunk.github.io/rba/discussions).
+        Please list all links to the sections of [our documentation](https://splunk.github.io/rba/) that are impacted by the issue you described above. Add screenshots, where applicable. Additionally, list links to any slack conversations and/or [GitHub discussions](https://github.com/splunk/rba/discussions).
     validations:
       required: true
 
