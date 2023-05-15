@@ -1,0 +1,27 @@
+name: Feature Request
+description: Want to submit an idea? Propose a change or feature request
+title: "[Feature Request]: "
+labels: ["feature request"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Please provide a detailed description of your idea in 2-3 sentences so
+        we can fully understand what change, feature, or the
+        improvement you are proposing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-links
+    attributes:
+      label: Related links
+      description: >-
+        (optional) Please list all links to open and closed [issues](https://github.com/splunk/rba/issues) 
+        or to [documentation sections](https://splunk.github.io/rba/)
+        that are relevant to your idea.
+      value: |-
+        - [Feature Request](https://splunk.github.io/rba/)
+        -
