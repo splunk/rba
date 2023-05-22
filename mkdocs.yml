@@ -110,12 +110,15 @@ nav:
   - Searches:
       - searches/index.md
       - Integrate A&I into RiRs: searches/asset_and_identity_rir_logic.md
-      - Deduplicate Notables: searches/deduplicate_notables.md
       - Limit score stacking: searches/limit_risk_rule_score_stacking.md
       - Essential RBA searches: searches/risk_guide_searches.md
       - Risk info field: searches/risk_info_event_detail.md
       - Chaining behaviors: searches/this_then_that_alerts.md
       - Naming SYSTEM/Unknown/Computer Accounts: searches/naming_system_unknown_computer_accounts.md
+      - Deduplicate Notables:
+        - searches/dedup-notables/index.md
+        - Dedup option 1: searches/dedup-notables/deduplicate_notables.md
+        - Dedup option 2: searches/dedup-notables/deduplicate_notables_2.md
   - Dashboards:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md
