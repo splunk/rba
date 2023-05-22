@@ -16,9 +16,9 @@ If you know the markdown language then using this style of documentation will be
 
 ### Fork the RBA GitHub
 
-- Fork the RBA GitHub page and be sure to submit pull requests to the **development branch only**.
-- Before submitting your pull request, merge `development` with your new branch and fix any conflicts.
+- Fork the RBA GitHub page, make your changes, and submit a pull requests.
 - Try to match the format of the existing documentation. 
+    - We can assist you with this process. 
 
 ### Create a local environment for testing
 
