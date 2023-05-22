@@ -1,0 +1,30 @@
+name: Report an issue with the docs
+description: Something wrong with the docs? Report a documentation issue
+labels:
+  - documentation
+body:
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Please describe the issue found in the [Splunk RBA documentation](https://splunk.github.io/rba/) or an improvement that can be made.
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-links
+    attributes:
+      label: Related links
+      description: >-
+        Please list all links to the sections of [our documentation](https://splunk.github.io/rba/) that are impacted by the issue you described above. Add screenshots, where applicable. Additionally, list links to any slack conversations and/or [GitHub discussions](https://github.com/splunk/rba/discussions).
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change (optional)
+      description: >-
+        Optionally provide an improvement proposal by describing your suggestion or create a pull request after submitting this report. Be sure to reference this issue in your pull request.
