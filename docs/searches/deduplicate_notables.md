@@ -8,7 +8,17 @@ Because Risk Notables look at a period of time, it is common for a risk_object t
 
     Edits to the **Incident Review - Main** search ***may*** be replaced on updates to Enterprise Security; requiring you to make this minor edit again to regain this functionality. Ensure you have a step in your relevant process to check this search after an update.
 
-## Making It Happen :hammer:
+## Navigation
+
+There are two methods for Deduplicating Notable Events
+
+- | Skill Level | Pros | Cons
+- | ---------- | ---- | ----
+[Method I](#method-i) | Intermediate | Comprehensive Deduplication | More setup time
+[Method II](#method-ii) | Beginner | Easy to get started with | Filters only by time
+
+
+## Method I
 
 ### 1. Create a Truth Table
 
@@ -115,15 +125,13 @@ Our last step is to ensure that the Incident Review panel doesn't show us notabl
   <figcaption>Updated incident review search</figcaption>
 </figure>
 
-## Congratulations! :partying_face:
+### Congratulations! :partying_face:
 
 You should now have a significant reduction in duplicate notables
 
 If something isn't working, make sure that the Saved Search is correctly outputting a lookup (which should have Global permissions), and ensure if you `| inputlookup RIR-Deduplicate.csv` you see all of the fields being returned as expected. If Incident Review is not working, something is wrong with the lookup or your edit to that search.
 
----
-
-## Extra Credit
+### Extra Credit
 
 If you utilize the [Risk info field](./risk_info_event_detail.md) so you have a short and sweet risk_message, you can add another level of granularity to your truth table.
 
@@ -179,6 +187,18 @@ Next we'll edit the Saved Search we created above to include the new fields and 
 ```
 
 Voila! We now ensure that our signature-based risk rule data sources will properly alert if there are interesting new events for that risk object.
+
+---
+
+## Method II
+
+This method will filter on time (within the last 70 minutes).
+
+``` spl title="Append to existing RiR"
+...
+| stats latest(_indextime) AS latest_risk
+| where latest_risk >= relative_time(now(),"-70m@m")
+```
 
 ---
 <small>Authors</small>

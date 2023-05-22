@@ -17,3 +17,5 @@
 [![Dean Luxton](../assets/authors/dean_luxton_linkedin.jpg){ class="github-avatar" } `Dean Luxton`](https://au.linkedin.com/in/dean-luxton-28494780 "Follow Dean Luxton"){ target="_blank" }
 
 [![elusive-mesmer](https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar" } `elusive-mesmer`](https://github.com/elusive-mesmer/ "Follow elusive-mesmer"){ target="_blank" }
+
+[![gabs - Gabriel Vasseur](https://static.wixstatic.com/media/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg/v1/fill/w_686,h_660,fp_0.50_0.50,q_85,usm_0.66_1.00_0.01,enc_auto/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg){ class="github-avatar" } `gabs - Gabriel Vasseur`](https://www.gabrielvasseur.com/ "Visit gabs website"){ target="_blank" }
