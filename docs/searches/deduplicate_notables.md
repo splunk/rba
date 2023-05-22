@@ -1,4 +1,4 @@
-# Deduplicate Notable Events - Option I
+# Deduplicate Notable Events
 
 !!! abstract "Throttle Alerts Which Have Already Been Reviewed or Fired"
 
@@ -8,14 +8,24 @@ Because Risk Notables look at a period of time, it is common for a risk_object t
 
     Edits to the **Incident Review - Main** search ***may*** be replaced on updates to Enterprise Security; requiring you to make this minor edit again to regain this functionality. Ensure you have a step in your relevant process to check this search after an update.
 
-## Making It Happen :hammer:
+## Navigation
+
+There are two methods for Deduplicating Notable Events
+
+- | Skill Level | Pros | Cons
+- | ---------- | ---- | ----
+[Method I](#method-i) | Intermediate | Comprehensive Deduplication | More setup time
+[Method II](#method-ii) | Beginner | Easy to get started with | Filters only by time
+
+
+## Method I
 
 ### 1. Create a Truth Table
 
 This method is described in [Stuart McIntosh's 2019 .conf Talk](https://conf.splunk.com/files/2019/recordings/SEC1908.mp4){ target=_blank } (about 9m10s in), and we're going to create a similar [lookup table](https://github.com/splunk/rba/blob/main/lookups/RIR-Truth-Table.csv){ target=_blank }. You can either download and import that file yourself, or create something like this in the [Lookup Editor app](https://splunkbase.splunk.com/app/1724){ target=_blank }:
 
 <figure markdown>
-  ![Truth Table](../../assets/truth_table.png)
+  ![Truth Table](../assets/truth_table.png)
   <figcaption>Truth Table</figcaption>
 </figure>
 
@@ -30,7 +40,7 @@ Then we'll create a Saved Search which runs relatively frequently to store notab
     Here is a sample to replicate
 
 <figure markdown>
-  ![Sample Report](../../assets/dedup_search.png)
+  ![Sample Report](../assets/dedup_search.png)
   <figcaption>Sample Report</figcaption>
 </figure>
 
@@ -78,7 +88,7 @@ In the SPL for `previousStatus` above, I used the default ES status label "Close
 
 <div class="result" markdown>
 
-![Scheduler settings](../../assets/dedup_schedule.png){ align=right width=650 }
+![Scheduler settings](../assets/dedup_schedule.png){ align=right width=650 }
 
 - **Schedule:** Run on Cron Schedule
 - **Cron Expression:** `*/3 * * * *`
@@ -98,7 +108,7 @@ Our last step is to ensure that the Incident Review panel doesn't show us notabl
     By default it looks like this:
 
 <figrue markdown>
-  ![Default incident review search](../../assets/dedup_ir_old.png)
+  ![Default incident review search](../assets/dedup_ir_old.png)
   <figcaption>Default incident review search</figcaption>
 </figure>
 
@@ -111,19 +121,17 @@ Our last step is to ensure that the Incident Review panel doesn't show us notabl
     ```
 
 <figure markdown>
-  ![new incident review search](../../assets/dedup_ir_new2.png)
+  ![new incident review search](../assets/dedup_ir_new2.png)
   <figcaption>Updated incident review search</figcaption>
 </figure>
 
-## Congratulations! :partying_face:
+### Congratulations! :partying_face:
 
 You should now have a significant reduction in duplicate notables
 
 If something isn't working, make sure that the Saved Search is correctly outputting a lookup (which should have Global permissions), and ensure if you `| inputlookup RIR-Deduplicate.csv` you see all of the fields being returned as expected. If Incident Review is not working, something is wrong with the lookup or your edit to that search.
 
----
-
-## Extra Credit
+### Extra Credit
 
 If you utilize the [Risk info field](./risk_info_event_detail.md) so you have a short and sweet risk_message, you can add another level of granularity to your truth table.
 
@@ -136,7 +144,7 @@ This is especially useful if you are creating risk events from a data source wit
 First, we'll create a new Calculated Field from risk_message in our Risk Datamodel called risk_hash with eval's `md5()` function, which bypasses the need to deal with special characters or other strangeness that might be in that field. If you haven't done this before - no worries - you just have to go to *Settings -> Data Models -> Risk Data Model -> Edit -> Edit Acceleration* and turn this off. Afterwards, you can *Create New -> Eval Expression* like this:
 
 <figure markdown>
-  ![Creating risk_hash from md5(risk_message) in data model](../../assets/calcfield_riskhash.png)
+  ![Creating risk_hash from md5(risk_message) in data model](../assets/calcfield_riskhash.png)
   <figcaption>Creating risk_hash from md5(risk_message) in data model</figcaption>
 </figure>
 
@@ -181,10 +189,22 @@ Next we'll edit the Saved Search we created above to include the new fields and 
 Voila! We now ensure that our signature-based risk rule data sources will properly alert if there are interesting new events for that risk object.
 
 ---
+
+## Method II
+
+This method will filter on time (within the last 70 minutes).
+
+``` spl title="Append to existing RiR"
+...
+| stats latest(_indextime) AS latest_risk
+| where latest_risk >= relative_time(now(),"-70m@m")
+```
+
+---
 <small>Authors</small>
 
 <div class="zts-tooltip">
-    <a class="zts-author" href="../../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
         <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
     </a>
     <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>

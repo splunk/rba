@@ -1,10 +1,43 @@
-# Deduplicate Notable Events - Option II
+# Limit Risk Rule Score Stacking
+
+This logic will limit the number of times risk rules can contribute to the total score of a risk object.
+
+## Navigation
+
+There are two methods for limiting score stacking
+
+- | Skill Level | Pros | Cons
+- | ---------- | ---- | ----
+[Method I](#method-i) | Beginner | Easy to get started with | Less information
+[Method II](#method-ii) | Intermediate | More deduplication and additional information | Additional understanding of SPL
+
+## Method I
+
+```shell linenums="1"
+| tstats summariesonly=true sum(All_Risk.calculated_risk_score) as summed_risk_score max(All_Risk.calculated_risk_score) as single_risk_score dc(source) as source_count count
+ FROM datamodel=Risk.All_Risk
+ WHERE All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*")
+ BY All_Risk.risk_object All_Risk.risk_object_type source
+| eval capped_risk_score=if(summed_risk_score < single_risk_score*3, summed_risk_score, single_risk_score*3)
+| stats sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(source) as source sum(count) as count
+ BY All_Risk.risk_object All_Risk.risk_object_type
+| sort 1000 - risk_score
+...
+```
+
+!!! note
+    To cap the risk score contribution of a single source by 3x the highest score from that source. You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS.
+
+    Thanks David Dorsey!
+
+## Method II
 
 This option adds some complexity, however, provides more information and better deduplication. The full write-up of how to accomplish this method can be found on [gabs website](https://www.gabrielvasseur.com/post/rba-a-better-way-to-dedup-risk-events){ target="blank" }.
 
 [Visit Website :octicons-link-external-16:](https://www.gabrielvasseur.com/post/rba-a-better-way-to-dedup-risk-events "See full blog post"){ .md-button .md-button--primary target="_blank" }
 
-![Deduplicate Notable Events](../../assets/dedup_notable_2.png)
+![Deduplicate Notable Events](../assets/dedup_notable_2.png)
+<small>_**\*reference:** [https://www.gabrielvasseur.com/post/rba-a-better-way-to-dedup-risk-events](https://www.gabrielvasseur.com/post/rba-a-better-way-to-dedup-risk-events){ target="blank" }_</small>
 
 
 ```spl title="Final SPL from blog post"
@@ -52,7 +85,13 @@ This option adds some complexity, however, provides more information and better 
 <small>Authors</small>
 
 <div class="zts-tooltip">
-    <a class="zts-author" href="../../../contributing/contributors" target="_blank" alt="gabs - Gabriel Vasseur">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
+    </a>
+    <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
+</div>
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="gabs - Gabriel Vasseur">
         <img class="github-avatar" src="https://static.wixstatic.com/media/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg/v1/fill/w_686,h_660,fp_0.50_0.50,q_85,usm_0.66_1.00_0.01,enc_auto/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg){ class="github-avatar"/>
     </a>
     <span class="zts-tooltip-text">@gabs - Gabriel Vasseur</span>

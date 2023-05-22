@@ -6,11 +6,11 @@ These are some SPL techniques to get the most out of RBA by adding new features 
 
 Adding this SPL into your Risk Incident Rules normalizes your risk object to a unique key in the Asset & Identity Framework; the primary advantage of this is throttling to prevent a Risk Incident Rule from firing on both a system and user that represent the same risk events.
 
-## [Deduplicate Notables](./dedup-notables/)
+## [Deduplicate Notables](./deduplicate_notables/)
 
 This feature will drastically reduce the number of duplicate Risk Notables by removing alerts where events are basically the same, already reviewed, or another Risk Incident Rule has already fired for.
 
-## [Limit score stacking](./limit_risk_rule_score_stacking.md)
+## [Limit score stacking](./limit_score_stacking/)
 
 This SPL for your Risk Score Risk Incident Rules ensures that a single correlation search can only contribute risk a total of three times (or whatever you would like). This is handy for reducing rapidly stacking risk which is common early in the RBA maturation process.
 
