@@ -1,6 +1,6 @@
 # Limit Risk Rule Score Stacking
 
-This logic will limit the number of times risk rules can contribute to the total score of a risk object.
+These will help reduce the maximum amount of risk which can be added from noisy Risk Rules.
 
 ## Navigation
 
@@ -8,10 +8,12 @@ There are two methods for limiting score stacking
 
 - | Skill Level | Pros | Cons
 - | ---------- | ---- | ----
-[Method I](#method-i) | Beginner | Easy to get started with | Less information
-[Method II](#method-ii) | Intermediate | More deduplication and additional information | Additional understanding of SPL
+[Method I](#method-i) | Beginner | Easy to get started with | Less context around what was capped and why
+[Method II](#method-ii) | Intermediate | More precise deduplication and additional information | Additional understanding of SPL
 
 ## Method I
+
+This caps the risk score contribution of a single source by 3x the highest score from that source.
 
 ```shell linenums="1"
 | tstats summariesonly=true sum(All_Risk.calculated_risk_score) as summed_risk_score max(All_Risk.calculated_risk_score) as single_risk_score dc(source) as source_count count
@@ -26,7 +28,7 @@ There are two methods for limiting score stacking
 ```
 
 !!! note
-    To cap the risk score contribution of a single source by 3x the highest score from that source. You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS.
+     You may want to limit this to particular sources, but this is extra handy for noisy sources like EDR, DLP, or IDS.
 
     Thanks David Dorsey!
 
