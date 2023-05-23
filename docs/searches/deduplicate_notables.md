@@ -2,23 +2,25 @@
 
 !!! abstract "Throttle Alerts Which Have Already Been Reviewed or Fired"
 
-Because Risk Notables look at a period of time, it is common for a risk_object to keep creating notables as additional (and even duplicate) events roll in, as well as when events fall off as the time period moves forward. Additionally, different Risk Incident Rules could be firing on the same risk_object with the same events but new Risk Notables. It is difficult to get around this with throttling, so we'll be using a Saved Search to store each Risk Notable's risk events and the analyst's status decision as a cross-reference for new notables and decide whether to create a new alert.
+Because Risk Notables look at a period of time, it is common for a risk_object to keep creating notables as additional (and even duplicate) events roll in, as well as when events fall off as the time period moves forward. Additionally, different Risk Incident Rules could be firing on the same risk_object with the same events but create new Risk Notables. It is difficult to get around this with throttling, so here are some methods to deduplicate notables.
+
+## Navigation
+
+Here are two methods for Deduplicating Notable Events:
+
+- | Skill Level | Pros | Cons
+- | ---------- | ---- | ----
+[Method I](#method-i) | Intermediate | Deduplicates on front and back end | More setup time
+[Method II](#method-ii) | Beginner | Easy to get started with | Only deduplicates on back end
+
+
+## Method I
+
+We'll use a Saved Search to store each Risk Notable's risk events and our analyst's status decision as cross-reference for new notables. Altogether new events will still fire, but repeated events from the same source will not. This also takes care of duplicate notables on the back end as events roll off of our search window.
 
 !!! tip "KEEP IN MIND"
 
     Edits to the **Incident Review - Main** search ***may*** be replaced on updates to Enterprise Security; requiring you to make this minor edit again to regain this functionality. Ensure you have a step in your relevant process to check this search after an update.
-
-## Navigation
-
-There are two methods for Deduplicating Notable Events
-
-- | Skill Level | Pros | Cons
-- | ---------- | ---- | ----
-[Method I](#method-i) | Intermediate | Comprehensive Deduplication | More setup time
-[Method II](#method-ii) | Beginner | Easy to get started with | Filters only by time
-
-
-## Method I
 
 ### 1. Create a Truth Table
 
@@ -192,13 +194,15 @@ Voila! We now ensure that our signature-based risk rule data sources will proper
 
 ## Method II
 
-This method will filter on time (within the last 70 minutes).
+This method is elegantly simple to ensure notables don't re-fire as earlier events drop off the rolling search window of your Risk Incident Rules. It does this by only firing if the latest risk event is from the past 70 minutes.
 
-``` spl title="Append to existing RiR"
+``` spl title="Append to existing RIR"
 ...
 | stats latest(_indextime) AS latest_risk
 | where latest_risk >= relative_time(now(),"-70m@m")
 ```
+
+Credit to Josh Hrabar and Josh Campbell, this is brilliant. Thanks y'all!
 
 ---
 <small>Authors</small>
