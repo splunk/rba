@@ -218,8 +218,6 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
 | fields - temp_disposition 
 | table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest
 | eventstats count as notable_count count(eval(status_label="Incident")) as incident_count | eval incident_count = if(isnull(incident_count),"0",incident_count) | rename status_label as status
-| eval ES_Domain ="$Instance$"
-| eval Splunk_Instance_Type = replace("$InstanceType$","\'", "")
 | eval ir_link = "Click to View in Incident Review"
 | table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest, ir_link, incident_count, status, notable_count
 </query>
