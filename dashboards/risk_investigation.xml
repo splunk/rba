@@ -84,6 +84,22 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
         <latest>now</latest>
       </default>
     </input>
+	<input type="dropdown" token="Instance" searchWhenChanged="false">
+      <label>Use ES Instance</label>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search>
+        <query>| rest splunk_server=local /services/server/info | table host host_fqdn host_resolved</query>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="radio" token="InstanceType" searchWhenChanged="true">
+      <label>Cloud or On-Prem</label>
+      <choice value="">Cloud</choice>
+      <choice value="':8000'">On-prem</choice>
+      <default>':8000'</default>
+    </input>
 <!-- 
   <input type="link">
       <choice value="context-clear">Risk Scoring Only</choice>
@@ -218,8 +234,12 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
 | fields - temp_disposition 
 | table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest
 | eventstats count as notable_count count(eval(status_label="Incident")) as incident_count | eval incident_count = if(isnull(incident_count),"0",incident_count) | rename status_label as status
-| eval ir_link = "https://i-0f475f545da6fbdc2.splunk.show/en-US/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=".earliest."&amp;latest=".latest."&amp;status=*&amp;urgency=*&amp;search=event_hash%3D".event_hash
+| eval ES_Domain ="$Instance$"
+| eval Splunk_Instance_Type = replace("$InstanceType$","\'", "")
+| eval ir_link = "https://".ES_Domain."".Splunk_Instance_Type."/en-US/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=-30d&amp;latest=now&amp;status=*&amp;urgency=*&amp;search=event_hash%3D".event_hash
+| table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest, ir_link, incident_count, status, notable_count
 </query>
+<!-- I've made some changes with the way the ir_link field is populated, now using variables and currently $Instance$ is coming from the dashboard picker pointing at the current instance, but the rest call can be changed above to point at your ES Splunk Server.-->
           <earliest>-30d</earliest>
           <latest>now</latest>
           <progress>
@@ -228,14 +248,14 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           </progress>
         </search>
         <drilldown>
-          <condition match="match('click.name2', &quot;comment&quot;)">
+        <condition match="match('click.name2', &quot;ir_link&quot;)">
             <link target="_blank">$row.ir_link|n$</link>
           </condition>
           <condition>
             <unset token="check_notable"></unset>
           </condition>
         </drilldown>
-        <fields>_time owner status comment</fields>
+        <fields>_time owner status comment ir_link</fields>
         <format type="color" field="comment">
           <colorPalette type="list">[#a7c4f2]</colorPalette>
         </format>
@@ -409,8 +429,10 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
             <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
           </condition>
           <condition match="match('click.name2', &quot;risk_message&quot;)">
-            <link target="_blank">search?q=index=proxy category="FileHost" NOT dest IN ("*.icloud.com","*.live.com","d.docs.live.net","docs.live.net","api.onedrive.com","*.box.com") $field_rv$ earliest=$timepicker.earliest$ | stats values(src_user_bunit) as src_user_bunit count sum(bytes) as bytes by dest,src_user</link>
+            <set token="src">$row.source$</set>
+            <link target="_blank">search?q=| savedsearch "$src$" | search user=$field_rv$ OR dest=$field_rv$ | fillnull value=NULL &amp;earliest=$timepicker.earliest$&amp;latest=now</link>
           </condition>
+          <!-- I'm not sure what happened here in previous versions but this should be working now, depending on time range this search can take a while.-->
           <condition>
             <unset token="nothing"></unset>
           </condition>
