@@ -195,7 +195,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           <query>
 `get_notable_index` risk_object=$field_rv$
 | eval indexer_guid=replace('_bkt',".*~(.+)","\\1"), event_hash=md5(('_time' . '_raw')), event_id=((((indexer_guid . "@@") . index) . "@@") . event_hash), rule_id=event_id 
-| eval latest=orig_time+1800 , earliest=orig_time-1800
+| eval latest=_time + 1800, earliest=_time - 1800
 | search event_id="*" 
 | fields - "host_*" 
 | tags outputfield=tag 
@@ -231,7 +231,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
         </search>
         <drilldown>
         <condition match="match('click.name2', &quot;ir_link&quot;)">
-            <link target="_blank">/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=-30d&amp;latest=now&amp;search=event_hash%3D$row.event_hash$</link>
+            <link target="_blank">/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=$row.earliest$&amp;latest=$row.latest$&amp;search=event_hash%3D$row.event_hash$</link>
         </condition>
           <condition>
             <unset token="check_notable"></unset>
