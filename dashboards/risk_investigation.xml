@@ -391,7 +391,8 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           <query>
             | eval risk_score = round(risk_score)
 | eval risk_message = risk_score." - ".risk_message
-| table _time source risk_message risk_score threat_object threat_short
+| eval latest=_time + 1800, earliest=_time - 1800
+| table _time source risk_message risk_score threat_object threat_short earliest latest
 | sort + _time
 | eventstats count(risk_message) as riskmsg_count
 | search $search_filter$ | eventstats count(risk_message) as addriskmsg_count
@@ -412,7 +413,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           </condition>
           <condition match="match('click.name2', &quot;risk_message&quot;)">
             <set token="src">$row.source$</set>
-            <link target="_blank">search?q=| savedsearch "$src$" | search user=$field_rv$ OR dest=$field_rv$ | fillnull value=NULL &amp;earliest=$timepicker.earliest$&amp;latest=now</link>
+            <link target="_blank">search?q=| savedsearch "$src$" | search user=$field_rv$ OR dest=$field_rv$ | fillnull value=NULL &amp;earliest=$row.earliest$&amp;latest=$row.latest$</link>
           </condition>
           <!-- I'm not sure what happened here in previous versions but this should be working now, depending on time range this search can take a while.-->
           <condition>
