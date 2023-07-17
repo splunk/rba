@@ -391,7 +391,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           <query>
             | eval risk_score = round(risk_score)
 | eval risk_message = risk_score." - ".risk_message
-| eval latest=_time + 1800, earliest=_time - 1800
+| eval latest=_time + 1800, earliest=_time - 5400
 | table _time source risk_message risk_score threat_object threat_short earliest latest
 | sort + _time
 | eventstats count(risk_message) as riskmsg_count
