@@ -19,3 +19,5 @@
 [![elusive-mesmer](https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar" } `elusive-mesmer`](https://github.com/elusive-mesmer/ "Follow elusive-mesmer"){ target="_blank" }
 
 [![gabs - Gabriel Vasseur](https://static.wixstatic.com/media/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg/v1/fill/w_686,h_660,fp_0.50_0.50,q_85,usm_0.66_1.00_0.01,enc_auto/13f3dd_4158c412b7a54e16b2c70eb6ef0e9cd5~mv2.jpg){ class="github-avatar" } `gabs - Gabriel Vasseur`](https://www.gabrielvasseur.com/ "Visit gabs website"){ target="_blank" }
+
+[![Daren Cook](https://avatars.githubusercontent.com/u/30186899?v=4){ class="github-avatar" } `Daren Cook`](https://github.com/DCData-OPS "Follow Daren Cook"){ target="_blank" }
