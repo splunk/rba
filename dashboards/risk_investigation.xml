@@ -195,7 +195,7 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           <query>
 `get_notable_index` risk_object=$field_rv$
 | eval indexer_guid=replace('_bkt',".*~(.+)","\\1"), event_hash=md5(('_time' . '_raw')), event_id=((((indexer_guid . "@@") . index) . "@@") . event_hash), rule_id=event_id 
-| eval latest=orig_time+1800 , earliest=orig_time-1800
+| eval latest=_time + 1800, earliest=_time - 1800
 | search event_id="*" 
 | fields - "host_*" 
 | tags outputfield=tag 
@@ -218,8 +218,10 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
 | fields - temp_disposition 
 | table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest
 | eventstats count as notable_count count(eval(status_label="Incident")) as incident_count | eval incident_count = if(isnull(incident_count),"0",incident_count) | rename status_label as status
-| eval ir_link = "https://i-0f475f545da6fbdc2.splunk.show/en-US/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=".earliest."&amp;latest=".latest."&amp;status=*&amp;urgency=*&amp;search=event_hash%3D".event_hash
+| eval ir_link = "Click to View in Incident Review"
+| table _time, orig_time, search_name, orig_source, status_label, status_end, comment, owner, reviewer, risk_object, risk_object_type, risk_messages, src, user, dest, rule_id, event_hash, earliest, latest, ir_link, incident_count, status, notable_count
 </query>
+<!-- IR_Link changed to Static Name and Length which referrs to drilldown URL below.-->
           <earliest>-30d</earliest>
           <latest>now</latest>
           <progress>
@@ -228,14 +230,14 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           </progress>
         </search>
         <drilldown>
-          <condition match="match('click.name2', &quot;comment&quot;)">
-            <link target="_blank">$row.ir_link|n$</link>
-          </condition>
+        <condition match="match('click.name2', &quot;ir_link&quot;)">
+            <link target="_blank">/app/SplunkEnterpriseSecuritySuite/incident_review?earliest=$row.earliest$&amp;latest=$row.latest$&amp;search=event_hash%3D$row.event_hash$</link>
+        </condition>
           <condition>
             <unset token="check_notable"></unset>
           </condition>
         </drilldown>
-        <fields>_time owner status comment</fields>
+        <fields>_time owner status comment ir_link</fields>
         <format type="color" field="comment">
           <colorPalette type="list">[#a7c4f2]</colorPalette>
         </format>
@@ -389,7 +391,8 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
           <query>
             | eval risk_score = round(risk_score)
 | eval risk_message = risk_score." - ".risk_message
-| table _time source risk_message risk_score threat_object threat_short
+| eval latest=_time + 1800, earliest=_time - 5400
+| table _time source risk_message risk_score threat_object threat_short earliest latest
 | sort + _time
 | eventstats count(risk_message) as riskmsg_count
 | search $search_filter$ | eventstats count(risk_message) as addriskmsg_count
@@ -409,8 +412,10 @@ I've left the input toggle commented out so you can add it in if you'd like. -->
             <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
           </condition>
           <condition match="match('click.name2', &quot;risk_message&quot;)">
-            <link target="_blank">search?q=index=proxy category="FileHost" NOT dest IN ("*.icloud.com","*.live.com","d.docs.live.net","docs.live.net","api.onedrive.com","*.box.com") $field_rv$ earliest=$timepicker.earliest$ | stats values(src_user_bunit) as src_user_bunit count sum(bytes) as bytes by dest,src_user</link>
+            <set token="src">$row.source$</set>
+            <link target="_blank">search?q=| savedsearch "$src$" | search user=$field_rv$ OR dest=$field_rv$ | fillnull value=NULL &amp;earliest=$row.earliest$&amp;latest=$row.latest$</link>
           </condition>
+          <!-- I'm not sure what happened here in previous versions but this should be working now, depending on time range this search can take a while.-->
           <condition>
             <unset token="nothing"></unset>
           </condition>
