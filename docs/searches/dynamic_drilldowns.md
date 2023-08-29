@@ -63,7 +63,7 @@ You could also utilize the time around an event by retaining `_time` in the init
 | eval hightime = _time + 300
 ```
 
-So you could use `$row.lowtime$` and `$row.hightime$` for your drilldown and search something different than the time picker for your investigation dashboard.
+So you could use `$row.lowtime$` and `$row.hightime$` for your drilldown and search a five minute window around an event instead of utilizing the standard time picker for your dashboard.
 
 ## Customize Your Heart Out
 
