@@ -154,7 +154,7 @@ true(),mitre_mod)
 match(user_category,"(privileged|technical|executive|watchlist)"),mitre_mod+20,
 match(src_category,"(Server|DMZ)"),mitre_mod+10,
 true(),mitre_mod)
-| where mitre_mod > 50
+| where mitre_mod > 49
 ```
 
 Near the beginning, we juggle some logic for counting events differently which have a lower risk score because when we aggregate on the count of MITRE Tactics/Techniques involved, we might want to treat events with a higher risk score as counting more heavily toward the overall total. This is especially true when aggregating events over longer periods like the out of the box 7 day rule, or something going as far back as 30 or 90 days.
