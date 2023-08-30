@@ -41,7 +41,7 @@ from datamodel=Risk.All_Risk by All_Risk.risk_object,All_Risk.risk_object_type, 
   
 ## Events from Multiple Sourcetypes
 
-This is a very effective approach that looks for when a single risk object has events from multiple security data sources. With a well-defined naming scheme for your searches, you may not need to utilize a saved search to retain this information in your risk rules. If you do, you could run something like this somewhat infrequently as a saved search:
+This is a very effective approach that looks for when a single risk object has events from multiple security data sources. With a well-defined naming scheme for your searches, you may not need to utilize a saved search to retain this information in your risk rules. Otherwise, you could run something like this somewhat infrequently as a saved search:
 
 ```shell linenums="1"
 | rest splunk_server=local count=0 /services/saved/searches
