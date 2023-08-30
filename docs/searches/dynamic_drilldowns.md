@@ -15,7 +15,7 @@
 
 ## Create your Drilldown Panel
 
-  In Donald's example, this panel shows the list of sources for the risk object indicated by $risk_object_token$ (which you will need to ensure matches whatever token your dashboard uses), a description, and the drilldown logic itself. Here is the SPL and helpful comments:
+  In Donald's example, this panel shows the list of sources for the risk object indicated by `$risk_object_token$` (which you will need to ensure matches whatever token your dashboard uses), a description, and the drilldown logic itself. Here is the SPL and helpful comments:
 
 ```shell linenums="1" title="Drilldown Panel SPL"
 | tstats summariesonly=false count from datamodel=Risk.All_Risk where All_Risk.risk_object="$risk_object_token$" by source
