@@ -11,7 +11,7 @@ Here are some alternative ways to alert from the risk index that you may find us
   
 ## Capped Risk Score by Source
 
-Utilizes the [limit score stacking] approach(https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md) to limit score contribution from a single source to double of its highest scoring risk event.
+Utilizes the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md) approach to limit score contribution from a single source to double of its highest scoring risk event.
 
 ```shell linenums="1"
 | tstats `summariesonly`
