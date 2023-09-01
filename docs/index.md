@@ -9,11 +9,11 @@ hide:
 
 RBA is Splunk's method to aggregate low-fidelity security events as interesting observations tagged with security metadata to create high-fidelity, low-volume alerts.
 
-## [Searches](searches/)
+## [Searches](searches/index.md)
 
 Useful SPL from the RBA community for working with risk events.
 
-## [Dashboards](dashboards/)
+## [Dashboards](dashboards/index.md)
 
 Simple XML or JSON for Splunk dashboards to streamline risk analysis.
 
@@ -40,9 +40,9 @@ Whether you’re new to RBA and ES or a seasoned pro, The RBA Community has some
 
 </div>
 
-## [Contributing](contributing/contributing-guidelines/)
+## [Contributing](contributing/contributing-guidelines.md)
 
-Want to contribute? See our [contributing guidelines](contributing/contributing-guidelines/).
+Want to contribute? See our [contributing guidelines](contributing/contributing-guidelines.md).
 
 ## Discussion/FAQ
 

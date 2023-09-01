@@ -18,7 +18,7 @@ eval risk_info = "{\"risk_info\":{"
 ```
 
 !!! tip ""
-    <span style="font-size: 1.5em">:raised_hands:  </span> Many thanks to [RedTigR](/contributing/contributors) on the RBA Slack for providing the multi-value friendly version of this macro.
+    <span style="font-size: 1.5em">:raised_hands:  </span> Many thanks to [RedTigR](../contributing/contributors.md) on the RBA Slack for providing the multi-value friendly version of this macro.
 
 Utilizing the macro like `risk_info("field1,field2,field3,etc")` to give us a JSON formatted field with any of the fields we like.
 
@@ -63,19 +63,19 @@ Breaking down some decisions:
 <small>Authors</small>
 
 <div class="zts-tooltip">
-    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
+    <a class="zts-author" href="../../contributing/contributors.md" target="_blank" alt="7thdrxn - Haylee Mills">
         <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
     </a>
     <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
 </div>
 <div class="zts-tooltip">
-    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="RedTigR">
+    <a class="zts-author" href="../../contributing/contributors.md" target="_blank" alt="RedTigR">
         <img class="github-avatar" src="https://ca.slack-edge.com/TLRQHBNKD-UUHMZ9CL8-0e1195c46b5b-512"/>
     </a>
     <span class="zts-tooltip-text">@RedTigR</span>
 </div>
 <div class="zts-tooltip">
-    <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="elusive-mesmer">
+    <a class="zts-author" href="../../contributing/contributors.md" target="_blank" alt="elusive-mesmer">
         <img class="github-avatar" src="https://avatars.githubusercontent.com/u/117061618?v=4){ class="github-avatar"/>
     </a>
     <span class="zts-tooltip-text">@elusive-mesmer</span>
