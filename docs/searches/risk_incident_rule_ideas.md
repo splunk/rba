@@ -16,7 +16,6 @@ Utilizes the [limit score stacking](./limit_score_stacking.md) approach to limit
 ```shell linenums="1"
 | tstats `summariesonly`
 count as count
-sum(All_Risk.calculated_risk_score) as risk_score,
 count(All_Risk.calculated_risk_score) as risk_event_count,
 sum(All_Risk.calculated_risk_score) as summed_risk_score,
 max(All_Risk.calculated_risk_score) as single_risk_score,
