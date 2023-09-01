@@ -109,13 +109,16 @@ nav:
   - Home: index.md
   - Searches:
       - searches/index.md
-      - Integrate A&I into RiRs: searches/asset_and_identity_rir_logic.md
-      - Deduplicate Notables: searches/deduplicate_notables.md
-      - Limit score stacking: searches/limit_score_stacking.md
-      - Essential RBA searches: searches/risk_guide_searches.md
-      - Risk info field: searches/risk_info_event_detail.md
       - Chaining behaviors: searches/this_then_that_alerts.md
+      - Deduplicate Notables: searches/deduplicate_notables.md
+      - Dynamic Drilldowns: searches/dynamic_drilldowns.md
+      - Essential RBA searches: searches/risk_guide_searches.md
+      - Integrate A&I into RiRs: searches/asset_and_identity_rir_logic.md
+      - Limit score stacking: searches/limit_score_stacking.md
       - Naming SYSTEM/Unknown/Computer Accounts: searches/naming_system_unknown_computer_accounts.md
+      - Risk Incident Rules: searches/risk_incident_rule_ideas.md
+      - Risk info field: searches/risk_info_event_detail.md
+      - Risk Notable History: searches/risk_notable_history.md
   - Dashboards:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md

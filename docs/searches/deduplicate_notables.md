@@ -209,7 +209,7 @@ Credit to Josh Hrabar and Josh Campbell, this is brilliant. Thanks y'all!
 
 <div class="zts-tooltip">
     <a class="zts-author" href="../../contributing/contributors" target="_blank" alt="7thdrxn - Haylee Mills">
-        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4){ class="github-avatar"/>
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4"/>
     </a>
     <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
 </div>

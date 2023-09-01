@@ -1,21 +1,21 @@
 # Dynamic Drilldowns by Source
 
-  If you're utilizing a custom risk notable investigation dashboard, it can be incredibly helpful for each risk event source to have its own drilldown. Thanks to Donald Murchison from the RBA Slack for contributing this method, which is explained in more detail in this [blog post](https://medium.com/@donemurch/lookup-to-drilldown-building-dynamic-searches-for-triaging-risk-notables-in-splunk-87c976711f7a).
+If you're utilizing a custom risk notable investigation dashboard, it can be incredibly helpful for each risk event source to have its own drilldown. Thanks to [Donald Murchison](../contributing/contributors.md) from the RBA Slack for contributing this method, which is explained in more detail in this [blog post](https://medium.com/@donemurch/lookup-to-drilldown-building-dynamic-searches-for-triaging-risk-notables-in-splunk-87c976711f7a){ target="blank" }.
 
 ## Create a Drilldown Lookup
 
-  First you'll need a lookup file with your risk rule name, the drilldown itself, and a description, like so:
+First you'll need a lookup file with your risk rule name, the drilldown itself, and a description, like so:
 
-  <figure markdown>
-  ![specific drilldowns will help analysts find exactly what they want to know](../assets/dashboard_drilldown_lookup.png)
-  <figcaption>specific drilldowns will help analysts find exactly what they want to know</figcaption>
-  </figure>
+<figure markdown>
+![specific drilldowns will help analysts find exactly what they want to know](../assets/dashboard_drilldown_lookup.png)
+<figcaption>Specific drilldowns will help analysts find exactly what they want to know</figcaption>
+</figure>
 
-  You can utilize this example from Donald's article and change it to suit your purposes.
+You can utilize this example from Donald's article and change it to suit your purposes.
 
 ## Create your Drilldown Panel
 
-  In Donald's example, this panel shows the list of sources for the risk object indicated by `$risk_object_token$` (which you will need to ensure matches whatever token your dashboard uses), a description, and the drilldown logic itself. Here is the SPL and helpful comments:
+In Donald's example, this panel shows the list of sources for the risk object indicated by `$risk_object_token$` (which you will need to ensure matches whatever token your dashboard uses), a description, and the drilldown logic itself. Here is the SPL and helpful comments:
 
 ```shell linenums="1" title="Drilldown Panel SPL"
 | tstats summariesonly=false count from datamodel=Risk.All_Risk where All_Risk.risk_object="$risk_object_token$" by source
@@ -55,7 +55,7 @@ You can follow along with Donald's article to add the drilldown in the GUI edito
 </drilldown>
 ```
 
-For a click anywhere on that row to drive the search. Make sure your timepicker tokens match here as well!
+For a click anywhere on that row to drive the search. Make sure your time picker tokens match here as well!
 
 You could also utilize the time around an event by retaining `_time` in the initial search and declaring this later in SPL:
 ```shell linenums="1" title="Extra Time Control"
@@ -74,3 +74,20 @@ This is a great way to incorporate something akin to Workflow Actions for your c
 - Utilize `case(isnull(drilldown)` logic to utilize generalized drilldowns in case nothing is explicitly defined
 
 Just as examples. Please share your variations on the RBA Slack!
+
+---
+
+<small>Authors</small>
+
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors/" target="_blank" alt="7thdrxn - Haylee Mills">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4"/>
+    </a>
+    <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
+</div>
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors/" target="_blank" alt="Donald Murchison">
+        <img class="github-avatar" src="https://miro.medium.com/v2/resize:fill:88:88/1*oBUT3Y4CuT0Ir5ygKapHRg.jpeg"/>
+    </a>
+    <span class="zts-tooltip-text">Donald Murchison</span>
+</div>

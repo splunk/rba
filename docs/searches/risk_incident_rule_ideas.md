@@ -2,16 +2,16 @@
 
 Here are some alternative ways to alert from the risk index that you may find useful. Later searches will be relying on the base search found in the "Capped Risk Score by Source" approach.
 
-- | Description
-- | ---------- 
-[Capped Risk Score by Source](#capped-risk-score-by-source) | From the [limit score stacking] approach(https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md)
+Name | Description
+---- | ---------- 
+[Capped Risk Score by Source](#capped-risk-score-by-source) | From the [limit score stacking](./limit_score_stacking.md) approach
 [Events from Multiple Sourcetypes](#events-from-multiple-sourcetypes) | For events from multiple sourcetypes
 [Events from Multiple Sourcetypes with Meta-Scoring](#events-from-multiple-sourcetypes-with-meta-scoring) | Similar, but with more control over what alerts and how
 [MITRE Counts with Meta-Scoring](#mitre-counts-with-meta-scoring) | Meta-scoring approach to MITRE alert
   
 ## Capped Risk Score by Source
 
-Utilizes the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md) approach to limit score contribution from a single source to double of its highest scoring risk event.
+Utilizes the [limit score stacking](./limit_score_stacking.md) approach to limit score contribution from a single source to double of its highest scoring risk event.
 
 ```shell linenums="1"
 | tstats `summariesonly`
@@ -168,3 +168,14 @@ Now in the meta-scoring, we have all sorts of ways to distinguish what might be 
 - Specific user or system categories adding more weight
 
 Which gives us more control over the types of events that might bubble up in our alerts.
+
+---
+
+<small>Authors</small>
+
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors/" target="_blank" alt="7thdrxn - Haylee Mills">
+        <img class="github-avatar" src="https://avatars.githubusercontent.com/u/12771156?v=4"/>
+    </a>
+    <span class="zts-tooltip-text">@7thdrxn - Haylee Mills</span>
+</div>

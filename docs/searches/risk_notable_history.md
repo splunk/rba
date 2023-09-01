@@ -90,3 +90,15 @@ You might want to check other fields in regular notables to see if this risk obj
 ![Notable Risk History](../assets/notable_history_2.png)
 
 Either way, letting your analysts know what was seen before is helpful context when they begin investigating.
+
+---
+
+<small>Authors</small>
+
+<div class="zts-tooltip">
+    <a class="zts-author" href="../../contributing/contributors/" target="_blank" alt="Tyler Younger">
+        <img class="github-avatar" src="https://ca.slack-edge.com/TLRQHBNKD-U05B4UJ85AR-66af0ac55ffc-512"/>
+    </a>
+    <span class="zts-tooltip-text">Tyler Younger</span>
+</div>
+
