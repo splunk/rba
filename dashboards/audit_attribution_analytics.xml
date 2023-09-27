@@ -1,5 +1,5 @@
 <!-- Initial dashboard created by the wonderful Jim Apger -->
-<form>
+<form version="1.1">
   <label>Audit:  Attribution Analytics (Tuning View)</label>
   <description>Helpful for tuning new detections</description>
   <fieldset submitButton="false" autoRun="true">

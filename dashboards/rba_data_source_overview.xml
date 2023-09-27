@@ -1,4 +1,4 @@
-<form theme="dark">
+<form theme="dark" version="1.1">
   <label>RBA Data Source Review</label>
   <search id="basesearch">
     <query>| rest splunk_server=local count=0 /servicesNS/-/SplunkEnterpriseSecuritySuite/saved/searches
