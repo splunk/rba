@@ -1,5 +1,5 @@
 <!-- Initial dashboard created by the wonderful Jim Apger -->
-<form script="mitre_matrix.js" stylesheet="mitre_matrix.css" theme="light">
+<form script="mitre_matrix.js" stylesheet="mitre_matrix.css" theme="light" version="1.1">
   <label>ATT&amp;CK Matrix Risk (Business View)</label>
   <description>This dashboard portraoys risk in your environment through the lens of RBA and the MITRE ATT&amp;CK framework</description>
   <search id="mitre_base_1">
