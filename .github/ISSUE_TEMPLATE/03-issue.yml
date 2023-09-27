@@ -1,0 +1,25 @@
+name: General Issue
+description: Find a problem? Let us know.
+title: "[Issue]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Please describe the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-links
+    attributes:
+      label: Related links
+      description: >-
+        (optional) Please list all links to open and closed [issues](https://github.com/splunk/rba/issues) 
+        or to [documentation sections](https://splunk.github.io/rba/)
+        that are relevant to your idea.
+      value: |-
+        - [Issue](https://splunk.github.io/rba/)
+        -
