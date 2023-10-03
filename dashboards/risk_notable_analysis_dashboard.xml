@@ -38,7 +38,7 @@
 | search eventtype=risk_notables 
 | eventstats count as sum 
 | stats count(eval(status_label="New")) as rule_count values(sum) as sum by orig_source 
-| eval notable_percent = rule_count / sum 
+| eval notable_percent = (rule_count / sum) * 100
 | sort - notable_percent</query>
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
@@ -54,7 +54,7 @@
             <set token="search_spl">$result.search_spl$</set>
             <set token="early_time">$result.early_time$</set>
           </done>
-          <query>| rest splunk_server=local count=0 /services/saved/searches f=title f= dispatch.earliest_time f=qualifiedSearch
+          <query>| rest splunk_server=local count=0 /services/saved/searches f=title f=dispatch.earliest_time f=qualifiedSearch
 | search title="$risk_drilldown$" 
 | rename dispatch.earliest_time as early_time qualifiedSearch as search_spl 
 | table search_spl early_time</query>
