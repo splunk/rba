@@ -1,5 +1,4 @@
-<!-- Initial dashboard created by the wonderful Jim Apger -->
-<form script="mitre_matrix.js" stylesheet="mitre_matrix.css" theme="light" version="1.1">
+<!-- Initial dashboard created by the wonderful Jim Apger --><form script="mitre_matrix.js" stylesheet="mitre_matrix.css" theme="light" version="1.1">
   <label>ATT&amp;CK Matrix Risk (Business View)</label>
   <description>This dashboard portraoys risk in your environment through the lens of RBA and the MITRE ATT&amp;CK framework</description>
   <search id="mitre_base_1">
@@ -24,10 +23,12 @@
       <single>
         <title>Reduction in notables by using the Attribution based approach</title>
         <search>
-          <query>index=notable|eval notable=if(eventtype="risk_notables","Risk Notable","Notable")|stats count by notable
-|transpose 0 header_field=notable
-|eval p=round(100-('Risk Notable'/Notable)*100,1)
-|table p</query>
+          <query>index=notable 
+| eval notable=if(eventtype="risk_notables","Risk Notable","Notable") 
+| stats count by notable 
+| transpose 0 header_field=notable 
+| eval p=round(100-('Risk Notable'/Notable)*100,1) 
+| table p</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
         </search>
@@ -45,8 +46,9 @@
       <chart>
         <title>Traditional Notables versus Risk Notables</title>
         <search>
-          <query>index=notable|eval notable=if(eventtype="risk_notables","Risk Notable","Notable")
-|timechart span=1h count by notable</query>
+          <query>index=notable 
+| eval notable=if(eventtype="risk_notables","Risk Notable","Notable") 
+| timechart span=1h count by notable</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
         </search>
@@ -83,7 +85,7 @@
       <single>
         <search>
           <query>`notable`
-| search search_name="Threat - ATT&amp;CK*"
+| search eventtype="risk_notables"
 | stats count</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
@@ -100,19 +102,35 @@
   </row>
   <row>
     <panel>
+      <input type="dropdown" token="tokDetectionStatus" searchWhenChanged="true">
+        <label>Detection Status</label>
+        <choice value="disabled=*">ALL</choice>
+        <choice value="disabled=0">Enabled</choice>
+        <choice value="disabled=1">Disabled</choice>
+        <default>disabled=0</default>
+        <initialValue>disabled=0</initialValue>
+      </input>
       <table>
         <title>Techniques Covered in Our Environment</title>
         <search>
-          <query>|inputlookup mitre_attack_lookup
-| stats dc(mitre_technique_id) as total_techniques by mitre_tactic
-|append [| rest splunk_server=local count=0 /services/saved/searches|search action.correlationsearch.label="RR - *"|table action.correlationsearch.annotations|spath input=action.correlationsearch.annotations|rename mitre_attack{} as  mitre_technique_id|mvexpand mitre_technique_id|lookup mitre_attack_lookup mitre_technique_id OUTPUT mitre_tactic|stats dc(mitre_technique_id) as num_covered_techniques by mitre_tactic]|stats values(total_techniques) as total_techniques, values(num_covered_techniques) as num_covered_techniques by mitre_tactic
-| fillnull value="0" num_covered_techniques
-| eval combo = num_covered_techniques." of ".total_techniques
-|eval perc=round((num_covered_techniques/total_techniques)*100,1)
-|eval perc="(".perc."%)"
-|table mitre_tactic, combo,perc
-| transpose 0 header_field=mitre_tactic
-|fields - column</query>
+          <query>| inputlookup mitre_attack_lookup 
+| stats dc(mitre_technique_id) as total_techniques by mitre_tactic 
+| append 
+    [| rest splunk_server=local count=0 /services/saved/searches f=actions f=action.correlationsearch.enabled f=action.correlationsearch.annotations f=disabled
+    | where isnotnull('action.correlationsearch.enabled') AND match(actions, "risk") AND $tokDetectionStatus$
+    | spath input=action.correlationsearch.annotations 
+    | rename mitre_attack{} as mitre_technique_id 
+    | mvexpand mitre_technique_id 
+    | lookup mitre_attack_lookup mitre_technique_id OUTPUT mitre_tactic 
+    | stats dc(mitre_technique_id) as num_covered_techniques by mitre_tactic] 
+| stats values(total_techniques) as total_techniques, values(num_covered_techniques) as num_covered_techniques by mitre_tactic 
+| fillnull value="0" num_covered_techniques 
+| eval combo = num_covered_techniques." of ".total_techniques 
+| eval perc=round((num_covered_techniques/total_techniques)*100,1) 
+| eval perc="(".perc."%)" 
+| table mitre_tactic, combo,perc 
+| transpose 0 header_field=mitre_tactic 
+| fields - column</query>
           <earliest>$field1.earliest$</earliest>
           <latest>$field1.latest$</latest>
         </search>
