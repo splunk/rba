@@ -14,44 +14,54 @@
       <table>
         <title>Risk Rules</title>
         <search>
-          <query>| tstats summariesonly=false sum(All_Risk.calculated_risk_score) as risk_score,dc(All_Risk.risk_object) as risk_objects,count from datamodel=Risk.All_Risk where *  All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*") by source | sort 1000 - count,risk_score</query>
+          <query>| tstats summariesonly=false sum(All_Risk.calculated_risk_score) as risk_score, dc(All_Risk.risk_object) as risk_objects, dc(All_Risk.threat_object) as threat_objects count from datamodel=Risk.All_Risk where * All_Risk.risk_object_type="*" (All_Risk.risk_object="*" OR risk_object="*") by source 
+| sort 1000 - count,risk_score</query>
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
         <option name="drilldown">cell</option>
-        <drilldown>
-          <set token="risk_drilldown">$click.value$</set>
-        </drilldown>
+        <option name="refresh.display">progressbar</option>
         <format type="color" field="risk_score">
           <colorPalette type="minMidMax" maxColor="#e34a33" midColor="#fdbb84" minColor="#fee8c8"></colorPalette>
           <scale type="minMidMax" maxType="number" maxValue="1000" midType="number" midValue="500" minType="number" minValue="0"></scale>
         </format>
+        <drilldown>
+          <set token="risk_drilldown">$click.value$</set>
+        </drilldown>
       </table>
     </panel>
     <panel>
       <table>
         <title>Risk Rule Frequency</title>
         <search>
-          <query>`notable` | search eventtype=risk_notables | eventstats count as sum | stats count(eval(status_label="New")) as rule_count values(sum) as sum by orig_source | eval notable_percent = rule_count / sum | sort - notable_percent</query>
+          <query>`notable` 
+| search eventtype=risk_notables 
+| eventstats count as sum 
+| stats count(eval(status_label="New")) as rule_count values(sum) as sum by orig_source 
+| eval notable_percent = rule_count / sum 
+| sort - notable_percent</query>
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
     <panel depends="$doesnt_exist$">
       <table>
         <search>
-          <query>
-  | rest splunk_server=local count=0 /services/saved/searches 
-  | search title="$risk_drilldown$" | rename dispatch.earliest_time as early_time qualifiedSearch as search_spl
-  | table search_spl early_time
-          </query>
           <done>
             <set token="search_spl">$result.search_spl$</set>
             <set token="early_time">$result.early_time$</set>
           </done>
+          <query>| rest splunk_server=local count=0 /services/saved/searches f=title f= dispatch.earliest_time f=qualifiedSearch
+| search title="$risk_drilldown$" 
+| rename dispatch.earliest_time as early_time qualifiedSearch as search_spl 
+| table search_spl early_time</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
         </search>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
