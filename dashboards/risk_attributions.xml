@@ -169,7 +169,12 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
               <set token="hide_asset">true</set>
             </condition>
           </progress>
-          <query>|inputlookup asset_lookup_by_str|search asset="$field_risk_object$"| appendcols [|from datamodel:"Risk"."All_Risk" |search risk_object="$field_risk_object$" risk_object_type="system"|stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
+          <query>| inputlookup asset_lookup_by_str 
+| search asset="$field_risk_object$" 
+| appendcols 
+    [| from datamodel:"Risk"."All_Risk" 
+    | search risk_object="$field_risk_object$" risk_object_type="system" 
+    | stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -198,7 +203,13 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
               <set token="hide_identity">true</set>
             </condition>
           </progress>
-          <query>|inputlookup identity_lookup_expanded |search identity="$field_risk_object$"| eval startDate=strftime(startDate,"%m/%d/%y %H:%M:%S")| appendcols [|from datamodel:"Risk"."All_Risk" |search risk_object="$field_risk_object$" risk_object_type="user"|stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
+          <query>| inputlookup identity_lookup_expanded 
+| search identity="$field_risk_object$" 
+| eval startDate=strftime(startDate,"%m/%d/%y %H:%M:%S") 
+| appendcols 
+    [| from datamodel:"Risk"."All_Risk" 
+    | search risk_object="$field_risk_object$" risk_object_type="user" 
+    | stats sum(calculated_risk_score) as "Agg Risk Score"]</query>
           <earliest>0</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -219,7 +230,9 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <title>Risk Factors Matched</title>
       <table>
         <search>
-          <query>|tstats `summariesonly` values(All_Risk.risk_factor_mult_matched) as risk_factor_mult_matched values(All_Risk.risk_factor_add_matched) as risk_factor_add_matched from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" by All_Risk.risk_object|eval risk_factors = mvappend('risk_factor_mult_matched', 'risk_factor_add_matched')|table risk_factors</query>
+          <query>| tstats `summariesonly` values(All_Risk.risk_factor_mult_matched) as risk_factor_mult_matched values(All_Risk.risk_factor_add_matched) as risk_factor_add_matched from datamodel=Risk.All_Risk where All_Risk.risk_object="$field_risk_object$" by All_Risk.risk_object 
+| eval risk_factors = mvappend('risk_factor_mult_matched', 'risk_factor_add_matched') 
+| table risk_factors</query>
           <earliest>0</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -228,6 +241,7 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">none</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -389,12 +403,12 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <title>Risk Attribution Timeline</title>
       <viz type="event-timeline-viz.event-timeline-viz">
         <search>
-          <query>| tstats `summariesonly` count values(source) as source from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.risk_message, _time span=15m
-|rename "All_Risk.risk_message" as risk_message
-|eval risk_message=if(len(risk_message)&gt;150,substr(risk_message,1,150)."..&lt;cut&gt;",risk_message)
-| eval source=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1")
-| table _time source risk_message threat_object
-| eval start=_time, label=source, tooltip=risk_message, data=threat_object
+          <query>| tstats `summariesonly` count values(source) as source from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by All_Risk.risk_message, _time span=15m 
+| rename "All_Risk.risk_message" as risk_message 
+| eval risk_message=if(len(risk_message)&gt;150,substr(risk_message,1,150)."..&lt;cut&gt;",risk_message) 
+| eval source=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1") 
+| table _time source risk_message threat_object 
+| eval start=_time, label=source, tooltip=risk_message, data=threat_object 
 | dedup _time label</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
@@ -411,17 +425,18 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <table>
         <title>&lt;click to drilldown to raw data&gt;</title>
         <search>
-          <query>| tstats `summariesonly` count min(_time) as _time values(All_Risk.risk_object) as risk_object from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by source, All_Risk.annotations.mitre_attack.mitre_tactic
-|rename "All_Risk.annotations.mitre_attack.mitre_tactic" as "ATT&amp;CK Tactic"
-| eval Rule=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1")
-|stats values("ATT&amp;CK Tactic") as "ATT&amp;CK Tactic" values(count) as count min(_time) as firstSeen values(risk_object) as risk_object by Rule, _time, source
-|lookup drilldown_searches.csv source
-|eval drilldown_search=replace(drilldown_search,"REPLACEME",risk_object)
-|sort firstSeen</query>
+          <query>| tstats `summariesonly` count min(_time) as _time values(All_Risk.risk_object) as risk_object from datamodel=Risk where All_Risk.risk_object="$field_risk_object$" source="*" by source, All_Risk.annotations.mitre_attack.mitre_tactic 
+| rename "All_Risk.annotations.mitre_attack.mitre_tactic" as "ATT&amp;CK Tactic" 
+| eval Rule=replace(source,"^.*?-\sRR\s-\s(.*?)\s-\s\w+?\s-\sRule","\1") 
+| stats values("ATT&amp;CK Tactic") as "ATT&amp;CK Tactic" values(count) as count min(_time) as firstSeen values(risk_object) as risk_object by Rule, _time, source 
+| lookup drilldown_searches.csv source 
+| eval drilldown_search=replace(drilldown_search,"REPLACEME",risk_object) 
+| sort firstSeen</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
         <fields>["Rule","ATT&amp;CK Tactic","count"]</fields>
         <drilldown>
           <link target="_blank">search?q=$row.drilldown_search$&amp;earliest=$timepicker.earliest$&amp;latest=$timepicker.latest$</link>
@@ -432,9 +447,10 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <table>
         <title>Related Threat Objects</title>
         <search>
-          <query>|from datamodel:Risk.All_Risk|search risk_object="$field_risk_object$"
-|sort _time
-|table threat_object_type,threat_object</query>
+          <query>| from datamodel:Risk.All_Risk 
+| search risk_object="$field_risk_object$" 
+| sort _time 
+| table threat_object_type,threat_object</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
@@ -449,7 +465,11 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <table>
         <title>&lt;click to drilldown to pivot to new risk object&gt;</title>
         <search>
-          <query>|tstats `summariesonly` count, values(All_Risk.src) as src, values(All_Risk.dest) as dest, values(source) as source, values(All_Risk.risk_object_type) as risk_object_type values(All_Risk.user) as user from datamodel=Risk.All_Risk where All_Risk.user="$field_risk_object$" OR All_Risk.dest="$field_risk_object$" OR All_Risk.src="$field_risk_object$" OR All_Risk.threat_object="$field_risk_object$" All_Risk.risk_object!="$field_risk_object$" by All_Risk.risk_object|rename "All_Risk.risk_object" as risk_object|rex field=source "^.*?.-.RR.-.(?&lt;Rule&gt;.*?).-.\w+.-.Rule$"|fields - source|sort - count</query>
+          <query>| tstats `summariesonly` count, values(All_Risk.src) as src, values(All_Risk.dest) as dest, values(source) as source, values(All_Risk.risk_object_type) as risk_object_type values(All_Risk.user) as user from datamodel=Risk.All_Risk where All_Risk.user="$field_risk_object$" OR All_Risk.dest="$field_risk_object$" OR All_Risk.src="$field_risk_object$" OR All_Risk.threat_object="$field_risk_object$" All_Risk.risk_object!="$field_risk_object$" by All_Risk.risk_object 
+| rename "All_Risk.risk_object" as risk_object 
+| rex field=source "^.*?.-.RR.-.(?&lt;Rule&gt;.*?).-.\w+.-.Rule$" 
+| fields - source 
+| sort - count</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -458,6 +478,7 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
         <option name="dataOverlayMode">none</option>
         <option name="drilldown">cell</option>
         <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
         <option name="rowNumbers">false</option>
         <option name="totalsRow">false</option>
         <option name="wrap">true</option>
@@ -470,7 +491,17 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <title>Notables for $field_risk_object$</title>
       <table>
         <search>
-          <query>`notable`|search risk_object="$field_risk_object$"|`notable_owners`|search _raw=*|rex field=_raw "search_name=.(?&lt;search_name&gt;[^\"]+)\""|table _time,owner,search_name</query>
+          <query>`notable` 
+| search 
+    [| inputlookup asset_lookup_by_str 
+    | search asset="$field_risk_object$" 
+    | table asset 
+    | rename asset as risk_object 
+    | format] 
+| `notable_owners` 
+| search _raw=* 
+| rex field=_raw "search_name=.(?&lt;search_name&gt;[^\"]+)\"" 
+| table _time,owner,search_name</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
@@ -491,14 +522,15 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <title>Risk Messages</title>
       <table>
         <search>
-          <query>|from datamodel:"Risk.All_Risk"
-|search risk_object="$field_risk_object$" search_name="* - RR - *"
-|table _time,risk_message
-|sort _time</query>
+          <query>| from datamodel:"Risk.All_Risk" 
+| search risk_object="$field_risk_object$" search_name="*" 
+| table _time, risk_message 
+| sort _time</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
         </search>
         <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
       </table>
     </panel>
   </row>
@@ -507,9 +539,9 @@ by All_Risk.risk_object, All_Risk.risk_object_type, All_Risk.threat_object, All_
       <title>Risk Attributions</title>
       <event>
         <search>
-          <query>|from datamodel:"Risk.All_Risk"
-|search risk_object="$field_risk_object$" search_name="* - RR - *"
-|sort _time</query>
+          <query>| from datamodel:"Risk.All_Risk" 
+| search risk_object="$field_risk_object$" search_name="*" 
+| sort _time</query>
           <earliest>$timepicker.earliest$</earliest>
           <latest>$timepicker.latest$</latest>
           <sampleRatio>1</sampleRatio>
