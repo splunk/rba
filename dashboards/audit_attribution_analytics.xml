@@ -1,5 +1,4 @@
-<!-- Initial dashboard created by the wonderful Jim Apger -->
-<form version="1.1">
+<!-- Initial dashboard created by the wonderful Jim Apger --><form version="1.1">
   <label>Audit:  Attribution Analytics (Tuning View)</label>
   <description>Helpful for tuning new detections</description>
   <fieldset submitButton="false" autoRun="true">
@@ -158,9 +157,11 @@
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
         <option name="charting.chart">column</option>
         <option name="charting.chart.overlayFields">"Risk Threshold"</option>
         <option name="charting.drilldown">none</option>
+        <option name="height">444</option>
       </chart>
     </panel>
     <panel>
@@ -172,9 +173,11 @@
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
         <option name="charting.chart">column</option>
         <option name="charting.chart.overlayFields">"Risk Threshold"</option>
         <option name="charting.drilldown">none</option>
+        <option name="height">445</option>
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
@@ -186,9 +189,11 @@
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
         <option name="charting.chart">column</option>
         <option name="charting.chart.overlayFields">"Risk Threshold"</option>
         <option name="charting.drilldown">none</option>
+        <option name="height">444</option>
         <option name="refresh.display">progressbar</option>
       </chart>
     </panel>
@@ -202,8 +207,7 @@
 | extract pairdelim=",", kvdelim="=", auto=f 
 | stats avg(result_count) as avg_results max(result_count) as max_results sparkline avg(run_time) as avg_runtime max(run_time) as max_runtime count AS execution_count by savedsearch_name, app 
 | join savedsearch_name type=outer 
-    [| rest splunk_server=local /servicesNS/-/-/saved/searches 
-    | fields title description eai:acl.app eai:acl.sharing eai:acl.owner cron_schedule dispatch.earliest_time dispatch.latest_time, disabled actions 
+    [| rest splunk_server=local /servicesNS/-/-/saved/searches f=title f=description f=eai* f=cron_schedule f=dispatch.earliest_time f=dispatch.latest_time f=disabled f=actions 
     | rename title AS savedsearch_name eai:acl.app AS App eai:acl.owner AS Owner cron_schedule AS "Cron Schedule" dispatch.earliest_time AS "Dispatch Earliest Time" dispatch.latest_time AS "Dispatch Latest Time" actions AS "Adaptive Response Actions", eai:acl.sharing AS Sharing] 
     
 |eval comment="This is just to make the demo work below since we do not have execution results in _internal"
