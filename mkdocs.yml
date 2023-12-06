@@ -42,8 +42,8 @@ markdown_extensions:
   - pymdownx.critic
   - pymdownx.details
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -119,6 +119,8 @@ nav:
       - Risk Incident Rules: searches/risk_incident_rule_ideas.md
       - Risk info field: searches/risk_info_event_detail.md
       - Risk Notable History: searches/risk_notable_history.md
+      - Threat Object Prevalence: searches/threat_object_prevalence.md
+      - Threat Object Types: searches/threat_object_types.md
   - Dashboards:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md
@@ -130,4 +132,3 @@ nav:
   - Contributing:
       - Contributing Guidelines: contributing/contributing-guidelines.md
       - Contributors: contributing/contributors.md
-

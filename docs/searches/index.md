@@ -43,3 +43,11 @@ ADDITIONALLY, this frees risk_message to be used as a short and sweet summary ra
 ## [Risk Notable History](./risk_notable_history.md)
 
 Tyler Younger from the RBA Slack contributed this handy method for including some useful history of risk notables for that risk object when it fires. I played with it a bit and created a version I might use in a dashboard for additional context. You should check with your analysts to see what would be most helpful for them.
+
+## [Threat Object Prevalence](./threat_object_prevalence.md)
+
+One of the great features in RBA is knowing how often something has occurred in an environment; generally, the more rare or anomalous something is, the more likely it is to be malicious. The threat object drilldown in the sample [Risk Investigation Dashboard](https://splunk.github.io/rba/dashboards/risk_investigation/){ target="blank" } is designed to offer an analyst that context, but with a simple saved search, we could use that context in our Risk Notables as well.
+
+## [Threat Object Types](./threat_object_types.md)
+
+Increasing the number of threat object types you track in Risk Rules can be really helpful for tuning noisy alerts, threat hunting on anomalous combinations, and automating SOAR enrichment to unique threat object types. Haylee and Stuart's [Threat Object Fun dashboards](https://splunkbase.splunk.com/app/6917){ target="blank" } can be helpful for all three.

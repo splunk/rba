@@ -1,10 +1,10 @@
-  # Threat Object Prevalence
+# Threat Object Prevalence
 
-  One of my favorite features in RBA is knowing how often something has occurred in an environment; generally, the more rare or anomalous something is, the more likely it is to be malicious. The threat object drilldown in the sample [Risk Investigation Dashboard](https://splunk.github.io/rba/dashboards/risk_investigation/) is designed to offer an analyst that context, but with a simple saved search, we could use that context in our Risk Notables as well.
+One of my favorite features in RBA is knowing how often something has occurred in an environment; generally, the more rare or anomalous something is, the more likely it is to be malicious. The threat object drilldown in the sample [Risk Investigation Dashboard](https://splunk.github.io/rba/dashboards/risk_investigation/){ target="blank" } is designed to offer an analyst that context, but with a simple saved search, we could use that context in our Risk Notables as well.
 
-  ## Create a Saved Search
+## Create a Saved Search
 
-  You'll have to decide how often you want this information updated, but utilizing `tstats` against the Risk Index means this should be pretty snappy and could run pretty frequently over a long timeframe. Create a new saved search with this logic:
+You'll have to decide how often you want this information updated, but utilizing `tstats` against the Risk Index means this should be pretty snappy and could run pretty frequently over a long timeframe. Create a new saved search with this logic:
 
 ```shell linenums="1"
 | tstats summariesonly=t count dc(All_risk.risk_object) as dc_objects earliest(_time) as first_time latest(_time) as last_time from datamodel=Risk.All_Risk by All_Risk.threat_object
@@ -13,11 +13,11 @@
 | outputlookup threat_object_count.csv
 ```
 
-You might want to include more details here, like lists of searches that fired this threat object and so on.
+!!! note "You might want to include more details here, like lists of searches that fired this threat object and so on."
 
 ## Incorporating into Risk Notables
 
-Because of potential overlaps in multi-value fields for threat object, we need to change our initial `tstats` logic to keep them separate until after we enrich. I will use the base logic for the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md) Risk Incident Rule with some modifications:
+Because of potential overlaps in multi-value fields for threat object, we need to change our initial `tstats` logic to keep them separate until after we enrich. I will use the base logic for the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md){ target="blank" } Risk Incident Rule with some modifications:
 
 ```shell linenums="1"
 | tstats `summariesonly`
@@ -46,4 +46,5 @@ from datamodel=Risk.All_Risk by All_Risk.risk_object,All_Risk.risk_object_type, 
 
 We have to keep in mind order of operations to ensure our logic continues working as intended. I took out the `values()` piece for threat_object, and add it to the `BY` clause so we keep things separate while we enrich with our lookup. Then I utilize that information to adjust the risk score of events which happen a lot, especially when observed on multiple machines. Finally I wrapped it back up with `stats` to utilize our score stacking logic again, now informed by our threat object prevalence adjustments.
 
-<<potentially an image here to show the adjusted scores after threat object changed them?>>
+<!-- TODO:
+potentially an image here to show the adjusted scores after threat object changed them? -->
