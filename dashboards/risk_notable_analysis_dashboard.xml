@@ -70,15 +70,24 @@
       <table>
         <title>$risk_drilldown$</title>
         <search>
-          <query>| tstats summariesonly=true count dc(All_Risk.risk_object) as dc_objects dc(All_Risk.src) as dc_src dc(All_Risk.dest) as dc_dest dc(All_Risk.user) as dc_users dc(All_Risk.user_bunit) as dc_bunit sum(All_Risk.calculated_risk_score) as risk_sum values(All_Risk.calculated_risk_score) as risk_scores from datamodel=Risk.All_Risk where source="$risk_drilldown$" by All_Risk.threat_object,All_Risk.threat_object_type | `drop_dm_object_name("All_Risk")` | sort 1000 - risk_sum</query>
+          <query>| from datamodel Risk.All_Risk 
+| search source="$risk_drilldown$" 
+| stats count dc(risk_object) as dc_objects list(threat_object) as threat_object list(threat_object_type) as threat_object_type dc(src) as dc_src dc(dest) as dc_dest dc(user) as dc_users dc(user_bunit) as dc_bunit sum(calculated_risk_score) as risk_sum values(calculated_risk_score) as risk_scores by risk_object
+| eval threat_object_type = mvmap(threat_object_type, "(" . threat_object_type . ")")
+| eval threat_object_combined = mvdedup(mvzip(threat_object, threat_object_type, " "))
+| fields - threat_object, threat_object_type
+| mvexpand threat_object_combined
+| stats count max(dc_objects) as dc_objects values(threat_object_combined) as threat_object max(dc_src) as dc_src max(dc_dest) as dc_dest max(dc_users) as dc_users max(dc_bunit) as dc_bunit max(risk_sum) as risk_sum values(risk_scores) as risk_scores by risk_object
+| sort 1000 - risk_sum</query>
           <earliest>$time_picker.earliest$</earliest>
           <latest>$time_picker.latest$</latest>
         </search>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
         <format type="color" field="threat_object">
           <colorPalette type="list">[#a7c4f2]</colorPalette>
         </format>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
         <drilldown>
           <condition match="match('click.name2', &quot;threat_object&quot;)">
             <link target="_blank">search?q=$search_spl$&amp;earliest=$early_time$&amp;latest=$time_picker.latest$</link>
