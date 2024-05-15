@@ -1,5 +1,8 @@
 # Threat Object Prevalence
 
+THIS IS A WIP PAGE, THIS IS COMING SOON!
+
+<!-- TODO:
 One of my favorite features in RBA is knowing how often something has occurred in an environment; generally, the more rare or anomalous something is, the more likely it is to be malicious. The threat object drilldown in the sample [Risk Investigation Dashboard](https://splunk.github.io/rba/dashboards/risk_investigation/){ target="blank" } is designed to offer an analyst that context, but with a simple saved search, we could use that context in our Risk Notables as well.
 
 ## Create a Saved Search
@@ -17,7 +20,7 @@ You'll have to decide how often you want this information updated, but utilizing
 
 ## Incorporating into Risk Notables
 
-Because of potential overlaps in multi-value fields for threat object, we need to change our initial `tstats` logic to keep them separate until after we enrich. I will use the base logic for the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md){ target="blank" } Risk Incident Rule with some modifications:
+I will use the base logic for the [limit score stacking](https://github.com/splunk/rba/blob/main/docs/searches/limit_score_stacking.md){ target="blank" } Risk Incident Rule with some modifications, and use the datamodel command for clarity and speed:
 
 ```shell linenums="1"
 | tstats `summariesonly`
@@ -46,5 +49,5 @@ from datamodel=Risk.All_Risk by All_Risk.risk_object,All_Risk.risk_object_type, 
 
 We have to keep in mind order of operations to ensure our logic continues working as intended. I took out the `values()` piece for threat_object, and add it to the `BY` clause so we keep things separate while we enrich with our lookup. Then I utilize that information to adjust the risk score of events which happen a lot, especially when observed on multiple machines. Finally I wrapped it back up with `stats` to utilize our score stacking logic again, now informed by our threat object prevalence adjustments.
 
-<!-- TODO:
+
 potentially an image here to show the adjusted scores after threat object changed them? -->
