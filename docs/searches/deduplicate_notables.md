@@ -202,7 +202,7 @@ This method is elegantly simple to ensure notables don't re-fire as earlier even
 | where latest_risk >= relative_time(now(),"-70m@m")
 ```
 
-Credit to Josh Hrabar and Josh Campbell, this is brilliant. Thanks y'all!
+Credit to Josh Hrabar and James Campbell, this is brilliant. Thanks y'all!
 
 ---
 <small>Authors</small>
