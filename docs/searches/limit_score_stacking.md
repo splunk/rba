@@ -66,7 +66,7 @@ This option adds some complexity, however, provides more information and better 
 | streamstats count as rank_per_source by risk_object risk_object_type source 
 | eval risk_message=case( 
     rank_per_source <= 10, risk_message,
-    rank_per_source = 11, "...+" . ( dc_msg_per_source - 20 ) . " others from '" . source . "'..." ,
+    rank_per_source = 11, "...+" . ( dc_msg_per_source - 10 ) . " others from '" . source . "'..." ,
     1==1, null() ) 
 | eval max_score=if( rank_per_source <= 10, max_score, 0 )
 ``` END limit to a maximum of 10 contributions per source ```
