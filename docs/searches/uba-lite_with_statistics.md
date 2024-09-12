@@ -3,7 +3,7 @@
 !!! note
     This is just an example using basic statistics and a CSV lookup. You can make this much more efficient at scale by utilizing a KVstore OR outputting to a summary index / accelerated report and searching back on that data.
 
-By comparing entity activity against itself or entities in a peer group (IE business unit, asset category, etc), you can create rules that offer anomaly detection capabilities similar to a UBA/UEBA solution. In RBA, you might use this as rules that generate risk events, or a field to use as a risk factor, or even just tags for the entity so that when you're investigating other a risk-based alert you have an idea that this entity has been behaving erratically compared to various standards of behavior.
+By comparing entity activity against itself or entities in a peer group (IE business unit, asset category, etc), you can create rules that offer anomaly detection capabilities similar to a UBA/UEBA solution. In RBA, you might use this as rules that generate risk events, or a field to use as a risk factor, or even just tags for the entity so that when you're investigating a risk-based alert you have an idea that this entity has been behaving erratically compared to various standards of behavior.
 
 ## Example: Event Count Variance per Category by Risk Object
 
