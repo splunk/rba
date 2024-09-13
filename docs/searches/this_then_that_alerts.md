@@ -15,6 +15,8 @@ index=risk sourcetype=stash search_name="Search1" OR search_name="Search2"
 
 The benefit of not doing this in a single search is you still have the individual risk events as useful observations, and then can add more risk when observed together, or tweak risk down for noisy events without "allowlisting" altogether.
 
+[Ryan Moss from Verizon also spoke about using Analytic Stories with RBA](https://conf.splunk.com/files/2023/recordings/SEC1402A.mp4) which is another excellent method for low volume, high fidelity chained detections.
+
 ---
 <small>Authors</small>
 
