@@ -22,4 +22,4 @@
 
 [![Tyler Younger](https://ca.slack-edge.com/TLRQHBNKD-U05B4UJ85AR-66af0ac55ffc-512){ class="github-avatar" } Tyler Younger](https://outpost-frontline.slack.com/team/UUHMZ9CL8 "Follow Tyler Younger"){ target="_blank" }
 
-[![ZachTheSplunker](https://media.licdn.com/dms/image/C4E03AQFKlVWcvzw3ow/profile-displayphoto-shrink_100_100/0/1530130257619?e=1698883200&v=beta&t=awWOUQZbZYDb1CVW8MExVuwwKm70U68ONl1RZjCFwRQ){ class="github-avatar" } `ZachTheSplunker`](https://www.linkedin.com/in/zachthesplunker/ "Follow ZachTheSplunker"){ target="_blank" }
+[![ZachTheSplunker](https://zachristensen.com/assets/img/avatar.png){ class="github-avatar" } `ZachTheSplunker`](https://www.linkedin.com/in/zachthesplunker/ "Follow ZachTheSplunker"){ target="_blank" }
