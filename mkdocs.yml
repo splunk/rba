@@ -121,6 +121,7 @@ nav:
       - Risk Notable History: searches/risk_notable_history.md
       - Threat Object Prevalence: searches/threat_object_prevalence.md
       - Threat Object Types: searches/threat_object_types.md
+      - UBA-lite with Basic Statistics: searches/uba-lite_with_statistics.md
   - Dashboards:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md

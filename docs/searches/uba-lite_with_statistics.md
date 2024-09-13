@@ -1,6 +1,6 @@
 # UBA-lite with Basic Statistics
 
-By comparing entity activity against itself or entities in a peer group (IE business unit, asset category, etc), you can create rules that offer anomaly detection capabilities similar to a UBA/UEBA solution. In RBA, you might use this as rules that generate risk events, or a field to use as a risk factor, or even just tags for the entity so that when you're investigating a risk-based alert you have an idea that this entity has been behaving erratically compared to various standards of behavior. Also please consider using the incredible step-by-step guided mode of the [Splunk App for Behavioral Profiling](https://splunkbase.splunk.com/app/6980) by Josh Cowling, Rupert Truman, and Premkumar Vyas; it's incredible!
+By comparing entity activity against itself or entities in a peer group (IE business unit, asset category, etc), you can create rules that offer anomaly detection capabilities similar to a UBA/UEBA solution. In RBA, you might use this as rules that generate risk events, or a field to use as a risk factor, or even just tags for the entity so that when you're investigating a risk-based alert you have an idea that this entity has been behaving erratically compared to various standards of behavior. Also please consider using the incredible step-by-step guided mode of the [Splunk App for Behavioral Profiling](https://splunkbase.splunk.com/app/6980){ target="_blank" } by Josh Cowling, Rupert Truman, and Premkumar Vyas; it's incredible!
 
 ## Example: Event Count Variance per Category by Risk Object
 

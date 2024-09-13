@@ -51,3 +51,7 @@ One of the great features in RBA is knowing how often something has occurred in 
 ## [Threat Object Types](./threat_object_types.md)
 
 Increasing the number of threat object types you track in Risk Rules can be really helpful for tuning noisy alerts, threat hunting on anomalous combinations, and automating SOAR enrichment to unique threat object types. Haylee and Stuart's [Threat Object Fun dashboards](https://splunkbase.splunk.com/app/6917){ target="blank" } can be helpful for all three.
+
+## [UBA-lite with Basic Statistics](./uba-lite_with_statistics.md)
+
+By comparing entity activity against itself or entities in a peer group (IE business unit, asset category, etc), you can create rules that offer anomaly detection capabilities similar to a UBA/UEBA solution.
