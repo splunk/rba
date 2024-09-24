@@ -12,6 +12,12 @@ Portrays risk in your environment through the lense of RBA and the MTRE ATT&CK f
 
 Helpful for tuning new detections.
 
+## [EDR Allowlist](./edr_allowlist_dashboard.md)
+
+<small>:simple-github: [edr_allowlist_dashboard.xml](https://github.com/splunk/rba/blob/main/dashboards/edr_allowlist_dashboard.xml){ target="_blank" }</small>
+
+A simple add-to-allowlist dashboard.
+
 ## [RBA Data Source Review](./rba_data_source_overview.md)
 
 <small>:simple-github: [rba_data_source_overview.xml](https://github.com/splunk/rba/blob/main/dashboards/rba_data_source_overview.xml){ target="_blank" }</small>

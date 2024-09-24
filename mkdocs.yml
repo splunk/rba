@@ -126,6 +126,7 @@ nav:
       - dashboards/index.md
       - ATT&CK Matrix Risk: dashboards/attack_matrix_risk.md
       - Attribution Analytics: dashboards/audit_attribution_analytics.md
+      - EDR Allowlist: dashboards/edr_allowlist_dashboard.md
       - RBA Data Source Review: dashboards/rba_data_source_overview.md
       - Risk Attributions: dashboards/risk_attributions.md
       - Risk Investigation: dashboards/risk_investigation.md
