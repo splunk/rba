@@ -6,6 +6,12 @@
 | makeresults
 | eval jira="1234" , startDate = strftime(now(),"%d %b %Y")+" 00:00:00 MST" , endDate = strftime(relative_time(now(),"+1y"),"%d %b %Y")+" 23:59:59 MST" , detection_title="Sample Title" , user="me" , process_name="sample.exe" , cmdline="sample.exe testing" , parent_process="sample_parent.exe" , parent_cmdline="sample_parent.exe testing" , grandparent_process="sample_gparent.exe" , grandparent_cmdline="sample_gparent.exe testing" , detect_dest_ip = "456.789.123.456" , added_by = "me" , removed = "no" | dedup jira _time | outputlookup rr_allowlist_edr.csv
 
+To utilize the allowlist. You might try something like:
+
+NOT [| inputlookup rr_allowlist_edr.csv | fields detection_title process_name cmdline parent_process parent_cmdline grandparent_process grandparent_cmdline detect_dest_ip]
+
+In a base search.
+  
 -->
   
   <init>
