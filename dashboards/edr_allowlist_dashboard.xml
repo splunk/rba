@@ -1,0 +1,163 @@
+<dashboard version="1.1" theme="light">
+  <label>EDR Allowlist Dashboard</label>
+
+<!-- Sample allowlist dashboard; has two checks: one to make sure that detection_title is not wildcarded and that JIRA is not the default value "Fill Me" with error/success messages in the panel title. Will include who added the exclusion as well as who removed any exclusions. To generate some initial values for the CSV so the inputlookup commands run correctly, try:
+
+| makeresults
+| eval jira="1234" , startDate = strftime(now(),"%d %b %Y")+" 00:00:00 MST" , endDate = strftime(relative_time(now(),"+1y"),"%d %b %Y")+" 23:59:59 MST" , detection_title="Sample Title" , user="me" , process_name="sample.exe" , cmdline="sample.exe testing" , parent_process="sample_parent.exe" , parent_cmdline="sample_parent.exe testing" , grandparent_process="sample_gparent.exe" , grandparent_cmdline="sample_gparent.exe testing" , detect_dest_ip = "456.789.123.456" , added_by = "me" , removed = "no" | dedup jira _time | outputlookup rr_allowlist_edr.csv
+
+-->
+  
+  <init>
+    <set token="descriptor">JIRA and Detection Title Must Be Set; set narrow exclusions with other fields.</set>
+    <set token="prepare">prepare</set>
+    <unset token="addtoCSV"></unset>
+    <unset token="ready"></unset>
+  </init>
+
+<search id="user_search">
+  <query>| rest splunk_server=local /services/authentication/current-context | table username</query>
+  <done>
+    <set token="currentuser">$result.username$</set>
+  </done>
+</search>
+   <row> <html>
+      To submit an entry in the top panel, you will need to click both "READY" and "YES" to complete the addition. Timeframe is automatically for one year.<p>
+        To REMOVE from allowlist: Select the far right cell's "click to remove" in the bottom panel and select "run" in the new window's pop-up warning.<p>
+          ALL ENTRIES MUST CONTAIN A JIRA TICKET.</p>
+      </p>
+    </html>
+    </row>
+  <row>
+    <panel>
+      <title>Add New Fields to Allowlist . $descriptor$</title>
+      <input type="text" token="jira">
+        <label>JIRA ticket</label>
+        <default>Fill Me</default>
+      </input>
+      <input type="time" token="timeDate">
+        <label>start/end date (time is irrelevant)</label>
+        <default>
+          <earliest>now</earliest>
+          <latest>+1y</latest>
+        </default>
+      </input>
+      <input type="text" token="detection_title">
+        <label>detection_title</label>
+        <default>DO NOT WILDCARD</default>
+      </input>
+      <input type="text" token="user">
+        <label>user</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="process_name">
+        <label>process_name</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="cmdline">
+        <label>cmdline</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="parent_process">
+        <label>parent_process</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="parent_cmdline">
+        <label>parent_cmdline</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="grandparent_process">
+        <label>grandparent_process</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="grandparent_cmdline">
+        <label>grandparent_cmdline</label>
+        <default>*</default>
+      </input>
+      <input type="text" token="detect_dest_ip">
+        <label>detect_dest_ip</label>
+        <default>*</default>
+      </input>
+      <input type="radio" searchWhenChanged="true">
+        <label></label>
+        <choice value="1">not ready</choice>
+        <choice value="2">READY
+        </choice>
+        <default>1</default>
+        <change>
+          <condition value="1">
+            <set token="prepare">prepare</set>
+            <set token="click">1</set>
+            <unset token="ready"></unset>
+          </condition>
+          <condition value="2">
+            <set token="prepare">work</set>
+            <set token="click">2</set>
+            <set token="ready"></set>
+          </condition>
+        </change>
+      </input>
+      <input type="radio" searchWhenChanged="true" depends="ready">
+        <label>are you sure?</label>
+        <choice value="1">no</choice>
+        <choice value="2">YES</choice>
+        <default>1</default>
+          <change>
+          <condition value="1"><unset token="addtoCSV"></unset></condition>
+          <condition match="$prepare$=&quot;work&quot; AND $click$=&quot;2&quot; AND $jira$=&quot;Fill Me&quot;">
+            <set token="descriptor">ERROR: JIRA is blank</set>
+            <unset token="addtoCSV"></unset>
+          </condition>
+          <condition match="$prepare$=&quot;work&quot; AND $click$=&quot;2&quot; AND $detection_title$=&quot;*&quot;">
+            <set token="descriptor">ERROR: detection_title is a wildcard</set>
+            <unset token="addtoCSV"></unset>
+          </condition>
+          <condition match="$prepare$=&quot;work&quot; AND $click$=&quot;2&quot; AND $jira$!=&quot;Fill Me&quot; AND $detection_title$!=&quot;*&quot;">
+            <set token="descriptor">SUCCESS: Entry added to lookup.</set>
+            <set token="addtoCSV">BLIGGLEBLOO</set>
+          </condition>
+        </change>
+      </input>
+      <table>
+        <search depends="$addtoCSV$">
+          <query>| inputlookup rr_allowlist_edr.csv | appendpipe [eval jira="$jira$" , startDate = strftime(now(),"%d %b %Y")+" 00:00:00 MST" , endDate = strftime(relative_time(now(),"+1y"),"%d %b %Y")+" 23:59:59 MST" , detection_title="$detection_title$" , user="$user$" , process_name="$process_name$" , cmdline="$cmdline$" , parent_process="$parent_process$" , parent_cmdline="$parent_cmdline$" , grandparent_process="$grandparent_process$" , grandparent_cmdline="$grandparent_cmdline$" , detect_dest_ip = "$detect_dest_ip$" , added_by = "$currentuser$" , removed = "no" ] | dedup jira removed | sort endDate | outputlookup rr_allowlist_edr.csv</query>
+          <earliest>-60s</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="rowNumbers">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+  <panel>
+    <title>Search Allowlist /// IE: detection_title="Noisy Signature" OR process_name="noisy.exe"</title>
+    <input type="text" token="allowlistSearch" searchWhenChanged="true">
+      <label>Search Value</label>
+      <default>*</default>
+    </input>
+  </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Current Allowlist</title>
+      <table>
+        <search>
+          <query>| inputlookup rr_allowlist_edr.csv | search $allowlistSearch$ removed="no" | table jira added_by startDate endDate detection_title user process_name cmdline parent_process parent_cmdline grandparent_process grandparent_cmdline detect_dest_ip | eval remove_link = "click to remove"</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <drilldown target="_blank">
+          <condition match="match('click.value2', &quot;click to remove&quot;)">
+            <link target="_blank">search?q=%7C%20inputlookup%20rr_allowlist_edr.csv%20%0A%7C%20eval%20removed%20=%20case(jira=%22$row.jira$%22,now(),isnotnull(removed),removed,1=1,null())%20,%20removed_by%20=%20case(jira=%22$row.jira$%22,%22$currentuser$%22,isnotnull(removed_by),removed_by,1=1,null()) %0A%7C%20outputlookup%20rr_allowlist_edr.csv&amp;earliest=-1h@h&amp;latest=now</link>
+          </condition>
+          <condition>
+            <set token="whyDidYouClickHere"></set>
+          </condition>
+        </drilldown>
+        <option name="refresh.display">preview</option>
+        <option name="rowNumbers">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>
