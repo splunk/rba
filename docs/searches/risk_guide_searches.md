@@ -52,16 +52,12 @@ index=notable eventtype=risk_notables
 
 ## Structural Changes
 
-### Notable Macro to Edit for QA Risk Notables
+### Notable Suppression for QA Risk Notables
 
-Add `| eval QA=1` to the end of your Risk Incident Rules, editing the macro `get_notable_index` from the default to begin "QA" mode.
-
-```shell title="default"
-index=notable
-```
+Add `| eval QA=1` to the end of your Risk Incident Rules, then go to Configure → Incident Management → Notable Event Suppressions, and create a new suppression for:
 
 ```shell title="QA mode"
-index=notable NOT QA=1
+index=notable QA=1
 ```
 
 This will keep Risk Notables out of your Incident Review queue while you develop RBA.
