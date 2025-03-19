@@ -47,13 +47,13 @@ You should be able to simply use the `join` and logic all the way up to the fina
 
 ## Adding Risk and Traditional Notable History
 
-You might want to check other fields in regular notables to see if this risk object appears there as well. In this example, I am using `coalesce` to check `src`, `dest`, and `user` and bring those in on the join. I'm also playing with the spacing and formatting of the final results in case that gives you some ideas:
+You might want to check other fields in regular notables to see if this object appears there as well. In this example, I am using `coalesce` to check `src`, `dest`, and `user` and bring those in on the join. Just replace "gravity" in both spots of this example to pull events for the object you want to get events for. I'm also playing with the spacing and formatting of the final results in case that gives you some ideas:
 
 ```shell linenums="1"
 | makeresults
 | eval risk_object="gravity"
 | join type=left max=0 risk_object
-    [| search earliest=-5000d latest=now `notable`
+    [| search earliest=-5000d latest=now gravity `notable`
     ``` ### This may or may not make sense in your enviornment, the idea was to tidy up the search names, adjust as needed
     ```
    | replace "* - Rule" WITH * IN search_name
