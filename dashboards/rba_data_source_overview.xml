@@ -179,7 +179,7 @@
   </row>
   <row>
     <panel>
-      <title>Risk Rules by Data Model</title>
+      <title>Risk Rules by Data Source</title>
       <table>
         <search base="basesearch">
           <query>| rex field=search "index=(?&lt;index&gt;.+?)\s"
