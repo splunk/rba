@@ -1,5 +1,21 @@
 # Dashboards
 
+## [Detection Insights](https://splunkbase.splunk.com/app/7066)
+
+An absolutely essential ES add-on for health checks, configuration audits, and scheduling insights. Be sure to follow the [installation guide](https://splunk.github.io/Splunk_App_for_Detection_Insights/) and install the additional visualizations.
+
+## [Octamis XBaseD Detections](https://splunkbase.splunk.com/app/7860)
+
+A fantastic set of dashboards for risk-based detection health as well as investigating risk alerts from RedTigr on the Outpost Community Slack.
+
+## [EDR Allowlist](./edr_allowlist_dashboard.md)
+
+<small>:simple-github: [edr_allowlist_dashboard.xml](https://github.com/splunk/rba/blob/main/dashboards/edr_allowlist_dashboard.xml){ target="_blank" }</small>
+
+A simple add-to-allowlist dashboard example, so analysts can easily add to a lookup referenced in detection SPL and implement tuning quickly. 
+
+# Old RBA Dashboards for Reference / Inspiration
+
 ## [ATT&CK Matrix Risk (Business View)](./attack_matrix_risk.md)
 
 <small>:simple-github: [attack_matrix_risk.xml](https://github.com/splunk/rba/blob/main/dashboards/attack_matrix_risk.xml){ target="_blank" }</small>
@@ -11,12 +27,6 @@ Portrays risk in your environment through the lense of RBA and the MTRE ATT&CK f
 <small>:simple-github: [audit_attribution_analytics.xml](https://github.com/splunk/rba/blob/main/dashboards/audit_attribution_analytics.xml){ target="_blank" }</small>
 
 Helpful for tuning new detections.
-
-## [EDR Allowlist](./edr_allowlist_dashboard.md)
-
-<small>:simple-github: [edr_allowlist_dashboard.xml](https://github.com/splunk/rba/blob/main/dashboards/edr_allowlist_dashboard.xml){ target="_blank" }</small>
-
-A simple add-to-allowlist dashboard.
 
 ## [RBA Data Source Review](./rba_data_source_overview.md)
 
