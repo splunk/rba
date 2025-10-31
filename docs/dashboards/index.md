@@ -6,7 +6,7 @@ An absolutely essential ES add-on for health checks, configuration audits, and s
 
 ## [Octamis XBaseD Detections](https://splunkbase.splunk.com/app/7860)
 
-A fantastic set of dashboards for risk-based detection health as well as investigating risk alerts from [RedTigr](https://outpost-frontline.slack.com/team/UUHMZ9CL8) on the Outpost Community Slack.
+A fantastic set of dashboards for risk-based detection health as well as investigating risk alerts from [RedTigR](https://outpost-frontline.slack.com/team/UUHMZ9CL8) on the Outpost Community Slack.
 
 ## [EDR Allowlist](./edr_allowlist_dashboard.md)
 
