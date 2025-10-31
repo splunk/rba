@@ -79,7 +79,7 @@ Which looks at the SPL of a search to determine which sourcetype to group it und
 | where sourcetype_count > 2
 ```
 
-- Entity with Multiple Risks within Single Sourcetype - 24h
+- Entity with Multiple Detections within Single Sourcetype - 24h
 
 ```shell linenums="1"
 ...
