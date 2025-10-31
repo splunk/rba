@@ -40,7 +40,7 @@ from datamodel=Risk.All_Risk by All_Risk.normalized_risk_object,All_Risk.risk_ob
   
 ## Events from Multiple Sourcetypes
 
-This is a very effective approach that looks for when a single risk object has events from multiple security data sources. With a well-defined naming scheme for your searches, you may not need to utilize a saved search to retain this information in your risk rules. Otherwise, you could run something like this somewhat infrequently as a saved search:
+This is a very effective approach that looks for when a single risk object has events from multiple security data sources. With a well-defined naming scheme for your searches (or bringing forward index+sourcetype in all of your risk rules), you may not need to utilize a saved search to retain this information in your risk rules. Otherwise, you could run something like this somewhat infrequently as a saved search:
 
 ```shell linenums="1"
 | rest splunk_server=local count=0 /services/saved/searches
@@ -64,7 +64,9 @@ true(),"Unknown")
 | outputlookup RR_sources.csv
 ```
 
-Which looks at the SPL of a search to determine which sourcetype to group it under. Please modify this search as you see fit for your environment. This allows you to create a Risk Incident Rule like this:
+Which looks at the SPL of a search to determine which sourcetype to group it under. Please modify this search as you see fit for your environment. This allows you to create a Risk Incident Rule like:
+
+- Entity with Risk from Multiple Sourcetypes - 24h
 
 ```shell linenums="1"
 ...
@@ -74,7 +76,20 @@ Which looks at the SPL of a search to determine which sourcetype to group it und
  BY risk_object risk_object_type
 | fields - single_risk_score count
 | eval risk_score = summed_risk_score
-| where sourcetype_count > 1
+| where sourcetype_count > 2
+```
+
+- Entity with Multiple Risks within Single Sourcetype - 24h
+
+```shell linenums="1"
+...
+| eval capped_risk_score=if(summed_risk_score < single_risk_score*2, summed_risk_score, single_risk_score*2)
+| lookup RR_sources.csv title AS source OUTPUTNEW data_sourcetype
+| stats values(*) as * sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count dc(annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count sum(risk_event_count) as risk_event_count dc(source) as source_count 
+ BY risk_object risk_object_type data_sourcetype
+| fields - single_risk_score count
+| eval risk_score = summed_risk_score
+| where source_count > 2
 ```
 
 ## Events from Multiple Sourcetypes with Meta-Scoring
@@ -102,14 +117,15 @@ true(),sourcetype_mod)
 | where sourcetype_mod > 39
 ```
 
-Because `sourcetypes` is now a multi-valued field by risk_object, I had to create multiple `eval` checks so that the operation would apply more than once if events from multiple sourcetypes were found. You can also see how I pulled out severity from the risk_message earlier on with `rex` so I could make a distinction between higher and lower severity IDS events in the meta-scoring. This assumes only my IDS events have that particular formatting to indicate severity; you may have to use more logic to distinguish different sourcetypes and severities, it's just an example. 
-
 For the scoring threshold of 40, I chose this because of how I've structured the score additions. I will get an alert if a risk object has events from:
 
 - 2 of (Endpoint / Malware / IDS High-Critical)
 - 1 of (Endpoint / Malware) + 2 of (Web / DLP / IDS Low-Medium)
 
 Which may remove a lot of noise from combinations which aren't as likely to be malicious. It is still worthwhile to occasionally review what doesn't pass the threshold to ensure you've crafted a method that surfaces high-fidelity alerts, or are caught with other Risk Incident Rules.
+
+!!! note
+    Because `sourcetypes` is now a multi-valued field by risk_object, I had to create multiple `eval` checks so that the operation would apply more than once if events from multiple sourcetypes were found. You can also see how I pulled out severity from the risk_message earlier on with `rex` so I could make a distinction between higher and lower severity IDS events in the meta-scoring. This assumes only my IDS events have that particular formatting to indicate severity; you may have to use more logic to distinguish different sourcetypes and severities, it's just an example. 
 
 ## MITRE Counts with Meta-Scoring
 
