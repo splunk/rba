@@ -8,6 +8,10 @@ An absolutely essential ES add-on for health checks, configuration audits, and s
 
 A fantastic set of dashboards for risk-based detection health as well as investigating risk alerts from [RedTigR](https://outpost-frontline.slack.com/team/UUHMZ9CL8) on the Outpost Community Slack.
 
+## [Threat Object Fun](https://splunkbase.splunk.com/app/6917)
+
+Dashboards focused around utilizing threat object for tuning, automation, and hunting by me (Haylee) and Stuart McIntosh. You can watch our .conf23 talk [here](https://conf.splunk.com/files/2023/recordings/SEC1215B.mp4) or view our [slides](https://conf.splunk.com/files/2023/slides/SEC1215B.pdf) to get more context on how to use threat object effectively.
+
 ## [EDR Allowlist](./edr_allowlist_dashboard.md)
 
 <small>:simple-github: [edr_allowlist_dashboard.xml](https://github.com/splunk/rba/blob/main/dashboards/edr_allowlist_dashboard.xml){ target="_blank" }</small>
