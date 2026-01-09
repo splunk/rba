@@ -18,6 +18,12 @@ Dashboards focused around utilizing threat object for tuning, automation, and hu
 
 A simple add-to-allowlist dashboard example, so analysts can easily add to a lookup referenced in detection SPL and implement tuning quickly. 
 
+## [Entity Risk Score Investigator](./ers_investigator.md)
+
+<small>:simple-github: [ers_investigator.xml](https://github.com/splunk/rba/blob/main/dashboards/ers_investigator.xml){ target="_blank" }</small>
+
+A relatively simple dashboard for browsing the Entity Risk Scoring lookup and looking at individual entities.
+
 # Old RBA Dashboards for Reference / Inspiration
 
 ## [ATT&CK Matrix Risk (Business View)](./attack_matrix_risk.md)
