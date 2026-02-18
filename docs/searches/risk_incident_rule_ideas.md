@@ -43,22 +43,27 @@ from datamodel=Risk.All_Risk by All_Risk.normalized_risk_object,All_Risk.risk_ob
 This is a very effective approach that looks for when a single risk object has events from multiple security data sources. With a well-defined naming scheme for your searches (or bringing forward index+sourcetype in all of your risk rules), you may not need to utilize a saved search to retain this information in your risk rules. Otherwise, you could run something like this somewhat infrequently as a saved search:
 
 ```shell linenums="1"
-| rest splunk_server=local count=0 /services/saved/searches
-| search action.correlationsearch.enabled=1
-| rename dispatch.earliest_time as early_time qualifiedSearch as search_spl
+| rest splunk_server=local count=0 /services/saved/searches f=title f=qualifiedSearch search="action.correlationsearch.detection_type=ebd"
+| rename qualifiedSearch as search_spl
 | table title search_spl
 | eval data_sourcetype = case(
-match(search_spl,".*\`(sysmon|wmi|powershell|wineventlog_(security|system))\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Endpoint.*") OR match(title,"Endpoint.*") OR match(search_spl,".*sourcetype\=(|\")(xmlwineventlog:microsoft-windows-sysmon/operational).*"),"Endpoint",
+match(search_spl,".*All_Risk.*"),"Risk",
+match(search_spl,".*\`(wineventlog_.*|certificateservices_lifecycle|windows_exchange_iis|iis_.*|ntlm_audit|printservice|linux_auditd|ms365_defender_incident_alerts|ms_defender_atp_alerts|osquery_.*|crowdstrike_stream|capi2_operational|subjectinterfacepackage|linux_hosts|remoteconnectionmanager|crowdstrike_identities|applocker|ms_defender|sysmon|wmi|powershell|wineventlog_(security|system))\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Endpoint.*") OR match(title,"Endpoint.*") OR match(search_spl,".*sourcetype\=(|\")(xmlwineventlog:microsoft-windows-sysmon/operational).*"),"Endpoint",
 match(search_spl,".*datamodel(:|=|\s)(|\")Endpoint.*") OR match(title,"Threat.*") OR match(search_spl,".*sourcetype\=(|\")(wdtap:alerts).*"),"Malware",
-match(search_spl,".*\`(okta|gws_reports_login)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Authentication.*"),"Authentication",
+match(search_spl,".*\`(o365_graph|okta|pingid|admon|gws_reports_login|cisco_duo_(administrator|activity))\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Authentication.*"),"Authentication",
 match(search_spl,".*datamodel(:|=|\s)(|\")Change.*"),"Change",
-match(search_spl,".*\`(stream_http)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Web.*"),"Web",
-match(search_spl,".*\`(o365_management_activity|gsuite_gmail)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Email.*"),"Email",
-match(search_spl,".*\`(gsuite_gdrive)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Data Loss.*"),"DLP",
+match(search_spl,".*\`(stream_http|zscaler_proxy|stream_dns)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Web.*"),"Web",
+match(search_spl,".*\`(o365_management_activity|gsuite_gmail|gsuite_calendar|msexchange_management)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Email.*"),"Email",
+match(search_spl,".*\`(gsuite_gdrive|gsuite_drive)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Data Loss.*"),"DLP",
+match(search_spl,".*(moveit_sftp_logs|crushftp|cisco_ai_defense|nginx_access_logs|zoom_index|papercutng|appdynamics_security|ivanti_vtm_audit).*"),"Application",
 match(search_spl,".*datamodel(:|=|\s)(|\")Alerts.*"),"Alerts",
-match(search_spl,".*datamodel(:|=|\s)(|\")Intrusion.*"),"IDS",
-match(search_spl,".*\`(cisco_networks)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Network.*"),"Network",
-match(search_spl,".*\`(kubernetes_azure|azuread|cloudtrail|aws_securityhub_finding|aws_cloudwatchlogs_eks|azure_audit|google_gcp_pubsub_message|aws_s3_accesslogs)\`.*"),"Cloud",
+match(search_spl,".*datamodel(:|=|\s)(|\")Intrusion.*") OR match(search_spl,".*(suricata|zeek_.*).*"),"IDS",
+match(search_spl,".*\`(f5_bigip_rogue|cisco_networks|cisco_asa|cisco_network_visibility_module_flowdata|cisco_secure_firewall)\`.*") OR match(search_spl,".*datamodel(:|=|\s)(|\")Network.*"),"Network",
+match(search_spl,".*circleci.*|github_enterprise|github_organizations"),"Development",
+match(search_spl,".*(kube_container_falco|kube_objects_events|esxi_syslog|cisco_isovalent|kube_audit|kubernetes_metrics|kubernetes_azure|kubernetes_container_controller).*"),"Orchestration",
+match(search_spl,".*\`(gws_reports_admin|azuread|cloudtrail|cloudwatchlogs_vpcflow|aws_securityhub_finding|aws_cloudwatchlogs_eks|azure_audit|google_gcp_pubsub_message|aws_s3_accesslogs|amazon_security_lake|azure_monitor_aad|azure_monitor_activity)\`.*"),"Cloud",
+match(search_spl,".*(m365_copilot_graph_api|m365_exported_ediscovery_prompt_logs|ollama_server).*"),"AI",
+match(search_spl,".*(splunkd|driverinventory|bootloader_inventory|splunk_pdfgen|lookup-table-files|get_integer_seq|eval punycode|no_windows_updates).*"),"Audit",
 true(),"Unknown")
 | fields - search_spl
 | outputlookup RR_sources.csv
