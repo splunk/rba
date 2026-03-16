@@ -23,14 +23,12 @@ The idea here is we create a saved search that runs relatively frequently (perha
 Dermot Gannon from Flutter made an excellent point that the original approach didn't include when a finding turned into an investigation post ES8, so I've added the ability to check the `mc_incidents` lookup for the investigation status instead of the notable event. To access fields in the `mc_incidents` lookup, you'll have to create a file-based KVstore lookup definition, point it to `mc_incidents` and then include these fields:
 
 ``` spl title="cc_mc_incidents_lookup"
-...
 _key,active_searches,assignee,attachments,count_findings,create_time,description,dest,display_id,disposition,dvc,id,implicit_finding_ids,incident_origin,incident_type,intermediate_finding_ids,is_ephemeral,is_finding_group,is_investigation,is_search_enriched,mc_create_time,name,notable_id,notes,orig_host,parent_incidents,response_plans,risk_event_count,risk_object,risk_score,searches,sensitivity,sla_completion_time,sla_expiry_time,source,src,src_user,status,update_time,urgency,user,version
 ```
 
 Now let's create the saved search:
 
 ``` spl title="Risk Deduplication Lookup Generation"
-...
 index=notable eventtype=risk_notables
 | eval risk_object=coalesce(normalized_risk_object, risk_object) 
 | eval `get_event_id_meval`,`get_event_hash_meval` 
