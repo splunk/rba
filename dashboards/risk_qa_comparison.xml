@@ -1,0 +1,487 @@
+<dashboard version="1.1" theme="light">
+<!-- This looks on the past 28 days to estimate how many risk alerts would occur if split by 24 hour buckets; this is *not* the same as the search running with the sliding window on cron. This is just to estimate the impact of enabling what is currently in your QA queue by giving you a before/after.
+
+This contains two searches with two IDs:
+
+"risk_24hr_28d_base"
+"risk_24hr_28d_qa"
+risk_24hr_multidetect_28d_base
+"risk_24hr_multidetect_28d_qa"
+
+The _base searches explicitly call NOT tag="QA" while the _qa searches include QA events which feeds the count panels and you can explore individual events in the bottom panel. Feel free to copy the logic to add different RIRs that you want to compare.
+
+Clicking on the blue _times in the middle panels will unroll all of the events for that search ID so you can browse them. Additionally you have one more blue click available via threat_object in the corresponding panel so you can get a sense of how often that threat_object fires in your environment.
+
+-->
+  <label>Risk Alert Review</label>
+  <row>
+    <panel>
+      <table>
+        <title>Risk Notables</title>
+        <search>
+          <query>
+        index=notable eventtype="risk_notables" | stats count by source
+      </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Risk Rules</title>
+        <search>
+          <query>
+        index=risk NOT tag="QA" | stats count as events by source | sort - events
+      </query>
+        </search>
+        <drilldown>
+          <set token="events_risk">true</set>
+          <unset token="events_risk_qa"></unset>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>QA Risk Rules</title>
+        <search>
+          <query>
+          index=risk tag="QA" | stats count as events by source | sort - events
+          </query>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>All Risk + Multidetect Events</title>
+        <search>
+          <query>
+            | makeresults | eval _time = null() | append [| loadjob "$risk_24hr_events$" | stats count by _time] | append [| loadjob "$risk_24hr_multidetect_events$" | stats count by _time] | stats sum(count) as count by _time
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>24h Risk Estimate</title>
+        <search base="risk_24hr_28d_base">
+          <query>
+          stats count by _time
+          </query>
+          <done>
+            <condition>
+              <set token="risk_24hr_events">$job.sid$</set>
+            </condition>
+          </done>
+        </search>
+        <drilldown>
+          <unset token="events_risk_qa">true</unset>
+          <unset token="events_multi"></unset>
+          <unset token="events_multi_qa"></unset>
+          <set token="events_risk"></set>
+        </drilldown>
+        <format type="color" field="_time">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="list" interpolate="true">[#65A637]
+          </colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>24h Risk with QA</title>
+        <search base="risk_24hr_28d_qa">
+          <query>
+          stats count by _time
+          </query>
+          <done>
+            <condition>
+              <set token="risk_24hr_qa_events">$job.sid$</set>
+            </condition>
+          </done>
+        </search>
+        <drilldown>
+          <set token="events_risk_qa">true</set>
+          <unset token="events_multi"></unset>
+          <unset token="events_multi_qa"></unset>
+          <unset token="events_risk"></unset>
+        </drilldown>
+        <format type="color" field="_time">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="list" interpolate="true">[#65A637]
+          </colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>24h Multidetect Estimate</title>
+        <search base="risk_24hr_multidetect_28d_base">
+          <query>
+          stats count by _time
+          </query>
+          <done>
+            <condition>
+              <set token="risk_24hr_multidetect_events">$job.sid$</set>
+            </condition>
+          </done>
+        </search>
+        <drilldown>
+          <unset token="events_risk_qa">true</unset>
+          <set token="events_multi"></set>
+          <unset token="events_multi_qa"></unset>
+          <unset token="events_risk"></unset>
+        </drilldown>
+        <format type="color" field="_time">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="list" interpolate="true">[##27b5d9]
+          </colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>24h Multidetect with QA</title>
+        <search base="risk_24hr_multidetect_28d_qa">
+          <query>
+          stats count by _time
+          </query>
+          <done>
+            <condition>
+              <set token="risk_24hr_multidetect_events">$job.sid$</set>
+            </condition>
+          </done>
+        </search>
+        <drilldown>
+          <unset token="events_risk_qa">true</unset>
+          <unset token="events_multi"></unset>
+          <set token="events_multi_qa"></set>
+          <unset token="events_risk"></unset>
+        </drilldown>
+        <format type="color" field="_time">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="list" interpolate="true">[##27b5d9]
+          </colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$threat_token$">
+      <single>
+        <title>Number of Events</title>
+        <search>
+          <query>| makeresults | eval num_objects = if(isint($num_objects$),"$num_objects$",0) | table num_objects
+          </query>
+        </search>
+        <drilldown>
+          <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Risk Rule Sources</title>
+        <search>
+          <query>| makeresults | eval source_count = if(isint($source_count$),"$source_count$",0) | table source_count</query>
+        </search>
+        <drilldown>
+          <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <single>
+        <title>Risk Objects</title>
+        <search>
+          <query>| makeresults 
+| eval risk_objects = if(isint($ro_count$),"$ro_count$",0)
+| table risk_objects</query>
+          <earliest>$earliest$</earliest>
+          <latest>$latest$</latest>
+        </search>
+        <drilldown>
+          <unset token="threat_token"></unset>
+        </drilldown>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[80,85]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">0</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="unit"></option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+      <table>
+        <title>Past 3000 Days for $threat_token$</title>
+        <search id="threat_breakdown">
+          <query>| tstats summariesonly=t count values(All_Risk.risk_message) as risk_message values(All_Risk.risk_score) as risk_score values(source) as sources values(All_Risk.risk_object_type) as risk_object_type from datamodel=Risk.All_Risk where All_Risk.threat_object="$threat_token$" groupby All_Risk.risk_object _time span=30d | rename All_Risk.risk_object as risk_object | table * | eval risk_score = mvindex(risk_score,0) , risk_score=round(risk_score,0) , risk_message = mvindex(risk_message,0) , risk_message = risk_score." - ".risk_message | eventstats dc(risk_object) as ro_count dc(sources) as source_count sum(count) as num_objects | rename risk_message AS sample_message </query>
+          <earliest>-3000d</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+          <progress>
+            <set token="ro_count">$result.ro_count$</set>
+            <set token="source_count">$result.source_count$</set>
+            <set token="num_objects">$result.num_objects$</set>
+          </progress>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="risk_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <fields>["risk_object","count","sample_message"]</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;risk_object&quot;)">
+            <link target="_blank">/app/SplunkEnterpriseSecuritySuite/risk_investigation_dashboard?form.field_rv=$click.value2$&amp;form.timepicker.earliest=-30d&amp;form.timepicker.latest=now</link>
+          </condition>
+          <condition>
+            <unset token="threat_token"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$events_risk$">
+        <title>No-QA Risk > 100 Events - click threat objects to investigate</title>
+        <search id="risk_24hr_28d_base">
+          <query>
+        | tstats `summariesonly`
+count as risk_event_count
+sum(All_Risk.calculated_risk_score) as risk_score,
+values(All_Risk.risk_message) as risk_message,
+sum(All_Risk.calculated_risk_score) as summed_risk_score,
+max(All_Risk.calculated_risk_score) as single_risk_score,
+values(All_Risk.annotations.mitre_attack.mitre_tactic_id) as annotations.mitre_attack.mitre_tactic_id,
+dc(All_Risk.annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count,
+values(All_Risk.annotations.mitre_attack.mitre_technique_id) as annotations.mitre_attack.mitre_technique_id,
+dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count,
+values(All_Risk.tag) as tag,
+mode(All_Risk.risk_object) as risk_object,
+mode(All_Risk.risk_object) as all_risk_objects,
+values(All_Risk.cim_entity_zone) as cim_entity_zone,
+values(All_Risk.threat_object) as threat_object,
+values(All_Risk.threat_object_type) as threat_object_type,
+values(All_Risk.threat_object_info) as threat_object_info,
+dc(source) as source_count,
+FROM datamodel=Risk.All_Risk WHERE NOT All_Risk.tag="QA" by All_Risk.normalized_risk_object,All_Risk.risk_object_type, source, _time span=1d | `drop_dm_object_name("All_Risk")` | eval "annotations.mitre_attack"='annotations.mitre_attack.mitre_technique_id' | `get_risk_severity(risk_score)`
+| eval capped_risk_score=if(summed_risk_score &lt; single_risk_score*2, summed_risk_score, single_risk_score*2)
+| stats values(*) as * sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count dc(annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count sum(risk_event_count) as risk_event_count dc(source) as source_count
+ BY normalized_risk_object risk_object_type _time
+| fields - single_risk_score count
+| eval risk_score = capped_risk_score
+| eval risk_object_system = if(risk_object_type="system",normalized_risk_object,null()) 
+| eval risk_object_user = if(risk_object_type="user",normalized_risk_object,null()) 
+| where capped_risk_score &gt; 100
+      </query>
+        </search>
+          <format type="color" field="normalized_risk_object">
+            <scale type="sharedCategory">
+            </scale>
+          <colorPalette type="sharedList">
+          </colorPalette>
+          </format>
+        <format type="color" field="threat_object">
+          <colorPalette type="list">[#a7c4f2]</colorPalette>
+        </format>
+        <fields>_time normalized_risk_object source threat_object</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <set token="threat_token">$click.value2$</set>
+            <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
+          </condition>
+          <condition>
+            <unset token="events"></unset>
+          </condition>
+        </drilldown>
+      </table>
+      <table depends="$events_multi$">
+        <title>No-QA Detections > 2 from Sourcetype Events - click threat objects to investigate</title>
+        <search id="risk_24hr_multidetect_28d_base">
+          <query>
+| tstats `summariesonly`
+count as risk_event_count
+sum(All_Risk.calculated_risk_score) as risk_score,
+values(All_Risk.risk_message) as risk_message,
+sum(All_Risk.calculated_risk_score) as summed_risk_score,
+max(All_Risk.calculated_risk_score) as single_risk_score,
+values(All_Risk.annotations.mitre_attack.mitre_tactic_id) as annotations.mitre_attack.mitre_tactic_id,
+dc(All_Risk.annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count,
+values(All_Risk.annotations.mitre_attack.mitre_technique_id) as annotations.mitre_attack.mitre_technique_id,
+dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count,
+values(All_Risk.tag) as tag,
+mode(All_Risk.risk_object) as risk_object,
+values(All_Risk.risk_object) as all_risk_objects,
+values(All_Risk.cim_entity_zone) as cim_entity_zone,
+values(All_Risk.threat_object) as threat_object,
+values(All_Risk.threat_object_type) as threat_object_type,
+values(All_Risk.threat_object_info) as threat_object_info,
+dc(source) as source_count,
+from datamodel=Risk.All_Risk WHERE NOT All_Risk.tag=QA by All_Risk.normalized_risk_object,All_Risk.risk_object_type, source _time span=1d | `drop_dm_object_name("All_Risk")` | eval "annotations.mitre_attack"='annotations.mitre_attack.mitre_technique_id' | `get_risk_severity(risk_score)`
+| eval capped_risk_score=if(summed_risk_score &lt; single_risk_score*2, summed_risk_score, single_risk_score*2)
+| lookup RR_sources.csv title AS source OUTPUTNEW data_sourcetype
+| stats values(*) as * sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count dc(annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count sum(risk_event_count) as risk_event_count dc(source) as source_count
+ BY normalized_risk_object risk_object_type data_sourcetype _time
+| fields - single_risk_score count
+| eval risk_score = summed_risk_score
+| where source_count &gt; 2
+      </query>
+        </search>
+          <format type="color" field="normalized_risk_object">
+            <scale type="sharedCategory">
+            </scale>
+          <colorPalette type="sharedList">
+          </colorPalette>
+          </format>
+        <fields>_time normalized_risk_object source threat_object</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <set token="threat_token">$click.value2$</set>
+            <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
+          </condition>
+          <condition>
+            <unset token="events"></unset>
+          </condition>
+        </drilldown>
+      </table>
+      <table depends="$events_risk_qa$">
+        <title>With QA Risk > 100 Events - click threat objects to investigate</title>
+        <search id="risk_24hr_28d_qa">
+          <query>
+        | tstats `summariesonly`
+count as risk_event_count
+sum(All_Risk.calculated_risk_score) as risk_score,
+values(All_Risk.risk_message) as risk_message,
+sum(All_Risk.calculated_risk_score) as summed_risk_score,
+max(All_Risk.calculated_risk_score) as single_risk_score,
+values(All_Risk.annotations.mitre_attack.mitre_tactic_id) as annotations.mitre_attack.mitre_tactic_id,
+dc(All_Risk.annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count,
+values(All_Risk.annotations.mitre_attack.mitre_technique_id) as annotations.mitre_attack.mitre_technique_id,
+dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count,
+values(All_Risk.tag) as tag,
+mode(All_Risk.risk_object) as risk_object,
+mode(All_Risk.risk_object) as all_risk_objects,
+values(All_Risk.cim_entity_zone) as cim_entity_zone,
+values(All_Risk.threat_object) as threat_object,
+values(All_Risk.threat_object_type) as threat_object_type,
+values(All_Risk.threat_object_info) as threat_object_info,
+dc(source) as source_count,
+FROM datamodel=Risk.All_Risk by All_Risk.normalized_risk_object,All_Risk.risk_object_type, source, _time span=1d | `drop_dm_object_name("All_Risk")` | eval "annotations.mitre_attack"='annotations.mitre_attack.mitre_technique_id' | `get_risk_severity(risk_score)`
+| eval capped_risk_score=if(summed_risk_score &lt; single_risk_score*2, summed_risk_score, single_risk_score*2)
+| stats values(*) as * sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count dc(annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count sum(risk_event_count) as risk_event_count dc(source) as source_count
+ BY normalized_risk_object risk_object_type _time
+| fields - single_risk_score count
+| eval risk_score = capped_risk_score
+| eval risk_object_system = if(risk_object_type="system",normalized_risk_object,null()) 
+| eval risk_object_user = if(risk_object_type="user",normalized_risk_object,null()) 
+| where capped_risk_score &gt; 100
+      </query>
+        </search>
+          <format type="color" field="normalized_risk_object">
+            <scale type="sharedCategory">
+            </scale>
+            <colorPalette type="sharedList">
+            </colorPalette>
+          </format>
+        <fields>_time normalized_risk_object source threat_object</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <set token="threat_token">$click.value2$</set>
+            <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
+          </condition>
+          <condition>
+            <unset token="events_qa"></unset>
+          </condition>
+        </drilldown>
+      </table>
+      <table depends="$events_multi_qa$">
+        <title>With QA Detections > 2 from Sourcetype Events - click threat objects to investigate</title>
+        <search id="risk_24hr_multidetect_28d_qa">
+          <query>
+| tstats `summariesonly`
+count as risk_event_count
+sum(All_Risk.calculated_risk_score) as risk_score,
+values(All_Risk.risk_message) as risk_message,
+sum(All_Risk.calculated_risk_score) as summed_risk_score,
+max(All_Risk.calculated_risk_score) as single_risk_score,
+values(All_Risk.annotations.mitre_attack.mitre_tactic_id) as annotations.mitre_attack.mitre_tactic_id,
+dc(All_Risk.annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count,
+values(All_Risk.annotations.mitre_attack.mitre_technique_id) as annotations.mitre_attack.mitre_technique_id,
+dc(All_Risk.annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count,
+values(All_Risk.tag) as tag,
+mode(All_Risk.risk_object) as risk_object,
+values(All_Risk.risk_object) as all_risk_objects,
+values(All_Risk.cim_entity_zone) as cim_entity_zone,
+values(All_Risk.threat_object) as threat_object,
+values(All_Risk.threat_object_type) as threat_object_type,
+values(All_Risk.threat_object_info) as threat_object_info,
+dc(source) as source_count,
+from datamodel=Risk.All_Risk by All_Risk.normalized_risk_object,All_Risk.risk_object_type, source _time span=1d | `drop_dm_object_name("All_Risk")` | eval "annotations.mitre_attack"='annotations.mitre_attack.mitre_technique_id' | `get_risk_severity(risk_score)`
+| eval capped_risk_score=if(summed_risk_score &lt; single_risk_score*2, summed_risk_score, single_risk_score*2)
+| lookup RR_sources.csv title AS source OUTPUTNEW data_sourcetype
+| stats values(*) as * sum(capped_risk_score) as capped_risk_score sum(summed_risk_score) as summed_risk_score dc(annotations.mitre_attack.mitre_tactic_id) as mitre_tactic_id_count dc(annotations.mitre_attack.mitre_technique_id) as mitre_technique_id_count sum(risk_event_count) as risk_event_count dc(source) as source_count
+ BY normalized_risk_object risk_object_type data_sourcetype _time
+| fields - single_risk_score count
+| eval risk_score = summed_risk_score
+| where source_count &gt; 2
+      </query>
+        </search>
+          <format type="color" field="normalized_risk_object">
+            <scale type="sharedCategory">
+            </scale>
+          <colorPalette type="sharedList">
+          </colorPalette>
+          </format>
+        <fields>_time normalized_risk_object source threat_object</fields>
+        <drilldown>
+          <condition match="match('click.name2', &quot;threat_object&quot;)">
+            <set token="threat_token">$click.value2$</set>
+            <eval token="threat_token">replace(replace($threat_token$,"\\\\","\\\\\\"),"\"","\\\"")</eval>
+          </condition>
+          <condition>
+            <unset token="events"></unset>
+          </condition>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</dashboard>
